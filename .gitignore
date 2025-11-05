@@ -1,25 +1,66 @@
-# If you prefer the allow list template instead of the deny list, see community template:
-# https://github.com/github/gitignore/blob/main/community/Golang/Go.AllowList.gitignore
+# ==================================
+# Go (Golang)
+# ==================================
 #
-# Binaries for programs and plugins
+# 1. Binaries (จากไฟล์ของคุณ + แบบไม่มีนามสกุล)
 *.exe
 *.exe~
 *.dll
 *.so
 *.dylib
+app
+main
+http
+projectname
 
-# Test binary, built with `go test -c`
+# 2. Test & Coverage (จากไฟล์ของคุณ)
 *.test
-
-# Output of the go coverage tool, specifically when used with LiteIDE
 *.out
+*.prof
+coverage.html
 
-# Dependency directories (remove the comment below to include it)
+# 3. Dependencies
 # vendor/
 
-# Go workspace file
+# 4. Go workspace file (จากไฟล์ของคุณ)
 go.work
 go.work.sum
 
-# env file
+# ==================================
+# Environment (สำคัญมาก)
+# ==================================
+#
+# ไฟล์ .env ทุกรูปแบบ (ยกเว้น .env.example)
 .env
+.env.*
+!.env.example
+
+# ==================================
+# Logs (ที่ควรเพิ่ม)
+# ==================================
+*.log
+logs/
+
+# ==================================
+# IDE & Editor Config (ที่ควรเพิ่ม)
+# ==================================
+#
+# VS Code
+.vscode/
+*.code-workspace
+
+# GoLand / IntelliJ
+.idea/
+*.iml
+
+# ==================================
+# OS Files (ที่ควรเพิ่ม)
+# ==================================
+#
+# macOS
+.DS_Store
+.AppleDouble
+
+# Windows
+Thumbs.db
+desktop.ini
