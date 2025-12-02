@@ -1,42 +1,50 @@
 package errs
 
-import "net/http"
+import (
+	"errors"
+	"net/http"
+)
 
-type AppError struct{
-	Code int
+var (
+	ErrNotFound   = errors.New("not found")
+	ErrValidation = errors.New("validation error")
+	ErrUnexpected = errors.New("unexpected error")
+)
+
+type AppError struct {
+	Code    int
 	Message string
+	Err     error
 }
 
-// implement error interface
-func (e AppError)	Error() string {
+func (e AppError) Error() string {
 	return e.Message
 }
 
-func NewNotFoundError(message string) error {
+func (e AppError) Unwrap() error {
+	return e.Err
+}
+
+func NewNotFoundError(msg string) error {
 	return AppError{
-		Code: http.StatusNotFound,
-		Message: message,
+		Code:    http.StatusNotFound,
+		Message: msg,
+		Err:     ErrNotFound,
 	}
 }
 
-func NewUnexpectedError() error {
+func NewValidationError(msg string) error {
 	return AppError{
-		Code: http.StatusInternalServerError,
-		Message: "unexpected error",
+		Code:    http.StatusUnprocessableEntity,
+		Message: msg,
+		Err:     ErrValidation,
 	}
 }
 
-
-func NewValidationError(message string) error {
+func NewUnexpectedError(msg string) error {
 	return AppError{
-		Code: http.StatusUnprocessableEntity,
-		Message: message,
-	}
-}
-
-func NewUnauthorizedError(message string) error {
-	return AppError{
-		Code: http.StatusUnauthorized,
-		Message: message,
+		Code:    http.StatusInternalServerError,
+		Message: msg,
+		Err:     ErrUnexpected,
 	}
 }

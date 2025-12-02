@@ -10,7 +10,6 @@
 *.dylib
 app
 main
-http
 projectname
 
 # 2. Test & Coverage (จากไฟล์ของคุณ)
@@ -35,11 +34,7 @@ go.work.sum
 .env.*
 !.env.example
 
-# ==================================
-# Logs (ที่ควรเพิ่ม)
-# ==================================
-*.log
-logs/
+config.yml
 
 # ==================================
 # IDE & Editor Config (ที่ควรเพิ่ม)

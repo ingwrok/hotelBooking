@@ -1,0 +1,11 @@
+app:
+  port: ${APP_PORT}
+db:
+  driver: ${DB_DRIVER}
+  host: ${DB_HOST}
+  port: ${DB_PORT}
+  database: ${DB_NAME}
+  username: ${DB_USER}
+  password: ${DB_PASSWORD}
+  sslmode: ${DB_SSLMODE}
+secret: ${APP_SECRET}
