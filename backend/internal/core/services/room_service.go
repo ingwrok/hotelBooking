@@ -144,7 +144,17 @@ func (s *RoomService)BlockRoom(ctx context.Context, block *domain.RoomBlock) err
 		return errs.NewValidationError("block start date cannot be in the past")
 	}
 
-	err := s.repo.CreateRoomBlock(ctx,block)
+	count,err := s.repo.CheckIfBlockOverlaps(ctx,block.RoomID,block.StartDate,block.EndDate)
+	if err != nil {
+		logger.ErrorErr(err, "CheckIfBlockOverlaps failed")
+		return errs.NewUnexpectedError("failed to check room block overlaps")
+	}
+	if count > 0 {
+		logger.Warn("room block overlaps with existing block", zap.Int("count", count))
+		return errs.NewValidationError("room block overlaps with existing block")
+	}
+
+	err = s.repo.CreateRoomBlock(ctx,block)
 	if err != nil {
 		logger.ErrorErr(err, "CreateRoomBlock failed")
 		return errs.NewUnexpectedError("failed to create room block record")

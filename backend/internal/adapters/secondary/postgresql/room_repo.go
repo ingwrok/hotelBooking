@@ -112,6 +112,23 @@ func (r *RoomRepository)GetAllRooms(ctx context.Context) ([]*domain.Room, error)
 	return rooms, nil
 }
 
+func (r *RoomRepository) CheckIfBlockOverlaps(ctx context.Context,roomID int,startDate,endDate time.Time,) (int, error) {
+	q := `
+		SELECT COUNT(block_id)
+		FROM room_blocks
+		WHERE room_id = $1
+		  AND end_date > $2
+		  AND start_date < $3
+	  `
+	var count int
+	err := r.db.QueryRowContext(ctx, q, roomID, startDate, endDate).Scan(&count)
+  if err != nil {
+        return 0, err
+  }
+
+	return count, nil
+}
+
 func (r *RoomRepository)CreateRoomBlock(ctx context.Context, block *domain.RoomBlock) error{
   model := model.FromDomainRoomBlock(block)
 

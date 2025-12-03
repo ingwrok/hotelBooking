@@ -17,6 +17,7 @@ type RoomRepository interface {
     GetAllRooms(ctx context.Context) ([]*domain.Room, error)
 
     // Room Block
+    CheckIfBlockOverlaps(ctx context.Context,roomID int,startDate,endDate time.Time,) (int, error)
     CreateRoomBlock(ctx context.Context, block *domain.RoomBlock) error
     GetRoomBlocksByRoomID(ctx context.Context, roomID int) ([]*domain.RoomBlock, error)
     DeleteRoomBlock(ctx context.Context, blockID int) error
