@@ -23,8 +23,6 @@ type RoomRepository interface {
     DeleteRoomBlock(ctx context.Context, blockID int) error
 
     // Room Availability
-    // หาจำนวนห้องว่างของแต่ละ Type ในช่วงเวลาที่กำหนด
     GetAvailableRoomCounts(ctx context.Context, checkIn, checkOut time.Time) (map[int]int, error)
-    // สุ่มหยิบห้องว่าง 1 ห้องจาก Type ที่ระบุ
     GetAnyAvailableRoomID(ctx context.Context, roomTypeID int, checkIn, checkOut time.Time) (int, error)
 }

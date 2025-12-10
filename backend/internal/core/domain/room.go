@@ -17,6 +17,17 @@ type RoomType struct {
 	BedType			string
 	Capacity		int
 	PictureURL		[]string
+	AmenityIDs	 []int
+}
+
+type RoomTypeDetails struct {
+	RoomTypeID		int
+	Name				string
+	Description	string
+	SizeSQM				float64
+	BedType			string
+	Capacity		int
+	PictureURL		[]string
 	Amenities	 []string
 }
 

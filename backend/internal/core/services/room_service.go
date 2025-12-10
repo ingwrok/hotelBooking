@@ -94,7 +94,6 @@ func (s *RoomService)ChangeRoomStatus(ctx context.Context, roomID int, status st
 	return nil
 }
 
-		// read Room
 func (s *RoomService)GetRoom(ctx context.Context, id int) (*domain.Room, error){
 	logger.Info("GetRoom called", zap.Int("roomID", id))
 
@@ -124,7 +123,6 @@ func (s *RoomService)ListRooms(ctx context.Context) ([]*domain.Room, error){
 	return rooms, nil
 }
 
-    // Room Block
 func (s *RoomService)BlockRoom(ctx context.Context, block *domain.RoomBlock) error{
 	logger.Info("BlockRoom called",
 		zap.Int("roomID", block.RoomID),
@@ -196,8 +194,7 @@ func (s *RoomService)	UnblockRoom(ctx context.Context, blockID int) error{
 	logger.Info("room block deleted", zap.Int("blockID", blockID))
 	return nil
 }
-    // Room Availability
-    // หาจำนวนห้องว่างของแต่ละ Type ในช่วงเวลาที่กำหนด
+
 func (s *RoomService)CountAvailableRooms(ctx context.Context, checkInStr, checkOutStr string) (map[int]int, error){
 
 	checkIn, err := utils.ParseDate(checkInStr,"check-in")
@@ -234,7 +231,7 @@ func (s *RoomService)CountAvailableRooms(ctx context.Context, checkInStr, checkO
 	logger.Debug("Available room counts calculated", zap.Int("total_types", len(counts)))
 	return counts, nil
 }
-    // สุ่มหยิบห้องว่าง 1 ห้องจาก Type ที่ระบุ
+
 func (s *RoomService)FindAvailableRoom(ctx context.Context, roomTypeID int, checkInStr, checkOutStr string) (int, error){
 
 	checkIn, err := utils.ParseDate(checkInStr,"check-in")

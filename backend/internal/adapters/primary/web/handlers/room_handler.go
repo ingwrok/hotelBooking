@@ -102,7 +102,12 @@ func (h *RoomHandler) GetRoom(c *fiber.Ctx) error {
 		return handleError(c, err)
 	}
 
-	return c.Status(200).JSON(room)
+	return c.Status(200).JSON(dto.RoomResponse{
+		RoomID:     room.RoomID,
+		RoomTypeID: room.RoomTypeID,
+		RoomNumber: room.RoomNumber,
+		Status:     room.Status,
+	})
 }
 
 func (h *RoomHandler) ListRooms(c *fiber.Ctx) error {
@@ -114,7 +119,17 @@ func (h *RoomHandler) ListRooms(c *fiber.Ctx) error {
 		return handleError(c, err)
 	}
 
-	return c.Status(200).JSON(rooms)
+	resRoom := make([]dto.RoomResponse, len(rooms))
+	for i, r := range rooms {
+		resRoom[i] = dto.RoomResponse{
+			RoomID:     r.RoomID,
+			RoomTypeID: r.RoomTypeID,
+			RoomNumber: r.RoomNumber,
+			Status:     r.Status,
+		}
+	}
+
+	return c.Status(200).JSON(resRoom)
 }
 
 
@@ -166,7 +181,18 @@ func (h *RoomHandler) GetRoomBlocks(c *fiber.Ctx) error {
 		return handleError(c, err)
 	}
 
-	return c.Status(200).JSON(blocks)
+	resBlocks := make([]dto.RoomBlockResponse, len(blocks))
+	for i, r := range blocks {
+		resBlocks[i] = dto.RoomBlockResponse{
+			RoomBlockID: r.RoomBlockID,
+			RoomID:      r.RoomID,
+			StartDate:   r.StartDate,
+			EndDate:     r.EndDate,
+			Reason:      r.Reason,
+		}
+	}
+
+	return c.Status(200).JSON(resBlocks)
 }
 
 

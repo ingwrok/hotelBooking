@@ -3,6 +3,7 @@ package model
 import (
 	"time"
 
+	"github.com/lib/pq"
 	"github.com/ingwrok/hotelBooking/internal/core/domain"
 )
 
@@ -32,6 +33,44 @@ func FromDomainRoom(d *domain.Room) *Room {
 }
 
 
+type RoomTypeDetails struct {
+	RoomTypeID		int `db:"room_type_id"`
+	Name				string `db:"name"`
+	Description	string `db:"description"`
+	SizeSQM				float64 `db:"size_sqm"`
+	BedType			string `db:"bed_type"`
+	Capacity		int `db:"capacity"`
+	PictureURL		pq.StringArray `db:"picture_url"`
+	Amenities	 pq.StringArray  `db:"amenities"`
+}
+
+
+func (m *RoomTypeDetails) ToDomain() *domain.RoomTypeDetails {
+	return &domain.RoomTypeDetails{
+		RoomTypeID:  m.RoomTypeID,
+		Name:        m.Name,
+		Description: m.Description,
+		SizeSQM:     m.SizeSQM,
+		BedType:     m.BedType,
+		Capacity:    m.Capacity,
+		PictureURL:  []string(m.PictureURL),
+		Amenities:   []string(m.Amenities),
+	}
+}
+
+func FromDomainRoomTypeDetails(d *domain.RoomTypeDetails) *RoomTypeDetails {
+	return &RoomTypeDetails{
+		RoomTypeID:  d.RoomTypeID,
+		Name:        d.Name,
+		Description: d.Description,
+		SizeSQM:     d.SizeSQM,
+		BedType:     d.BedType,
+		Capacity:    d.Capacity,
+		PictureURL: pq.StringArray(d.PictureURL),
+		Amenities:   pq.StringArray(d.Amenities),
+	}
+}
+
 type RoomType struct {
 	RoomTypeID		int `db:"room_type_id"`
 	Name				string `db:"name"`
@@ -39,8 +78,8 @@ type RoomType struct {
 	SizeSQM				float64 `db:"size_sqm"`
 	BedType			string `db:"bed_type"`
 	Capacity		int `db:"capacity"`
-	PictureURL		[]string `db:"picture_url"`
-	Amenities	 []string `db:"amenities"`
+	PictureURL		pq.StringArray `db:"picture_url"`
+	AmenityIDs	 []int `db:"amenity_ids"`
 }
 
 
@@ -52,12 +91,11 @@ func (m *RoomType) ToDomain() *domain.RoomType {
 		SizeSQM:     m.SizeSQM,
 		BedType:     m.BedType,
 		Capacity:    m.Capacity,
-		PictureURL:  m.PictureURL,
-		Amenities:   m.Amenities,
+		PictureURL:  []string(m.PictureURL),
+		AmenityIDs: m.AmenityIDs,
 	}
 }
 
-// FromDomainRoomType อาจจะไม่ค่อยได้ใช้ ถ้าไม่มีฟังก์ชันสร้าง RoomType
 func FromDomainRoomType(d *domain.RoomType) *RoomType {
 	return &RoomType{
 		RoomTypeID:  d.RoomTypeID,
@@ -66,8 +104,8 @@ func FromDomainRoomType(d *domain.RoomType) *RoomType {
 		SizeSQM:     d.SizeSQM,
 		BedType:     d.BedType,
 		Capacity:    d.Capacity,
-		PictureURL: d.PictureURL,
-		Amenities:   d.Amenities,
+		PictureURL: pq.StringArray(d.PictureURL),
+		AmenityIDs: d.AmenityIDs,
 	}
 }
 
