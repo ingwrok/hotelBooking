@@ -45,6 +45,11 @@ func (s *RoomService)	AddRoom(ctx context.Context, room *domain.Room) (*domain.R
 func (s *RoomService)RemoveRoom(ctx context.Context, id int) error{
 	logger.Info("RemoveRoom called", zap.Int("roomID", id))
 
+	if id <= 0 {
+		logger.Warn("validation failed: missing roomID")
+		return errs.NewValidationError("room ID is required")
+	}
+
 	err := s.repo.DeleteRoom(ctx, id)
 	if err != nil {
 		if errors.Is(err, errs.ErrNotFound) {
@@ -62,6 +67,11 @@ func (s *RoomService)ChangeRoomStatus(ctx context.Context, roomID int, status st
 		zap.Int("roomID", roomID),
 		zap.String("status", status),
 	)
+
+	if roomID <= 0 || status == "" {
+		logger.Warn("validation failed: missing roomID or status")
+		return errs.NewValidationError("room ID and status are required")
+	}
 
 	normalizedStatus := strings.ToLower(status)
 
@@ -97,6 +107,11 @@ func (s *RoomService)ChangeRoomStatus(ctx context.Context, roomID int, status st
 func (s *RoomService)GetRoom(ctx context.Context, id int) (*domain.Room, error){
 	logger.Info("GetRoom called", zap.Int("roomID", id))
 
+	if id <= 0 {
+		logger.Warn("validation failed: missing roomID")
+		return nil, errs.NewValidationError("room ID is required")
+	}
+
 	room, err := s.repo.GetRoomByID(ctx, id)
 	if err != nil {
 		if errors.Is(err, errs.ErrNotFound) {
@@ -129,6 +144,11 @@ func (s *RoomService)BlockRoom(ctx context.Context, block *domain.RoomBlock) err
 		zap.Time("start", block.StartDate),
 		zap.Time("end", block.EndDate),
 	)
+
+	if block.RoomID <= 0 {
+		logger.Warn("validation failed: missing roomID")
+		return errs.NewValidationError("room ID is required")
+	}
 
 	if block.StartDate.After(block.EndDate) {
 		logger.Warn("block date invalid",
@@ -180,6 +200,11 @@ func (s *RoomService)GetRoomBlocks(ctx context.Context, roomID int) ([]*domain.R
 
 func (s *RoomService)	UnblockRoom(ctx context.Context, blockID int) error{
 	logger.Info("UnblockRoom called", zap.Int("blockID", blockID))
+
+	if blockID <= 0 {
+		logger.Warn("validation failed: missing blockID")
+		return errs.NewValidationError("block ID is required")
+	}
 
 	err := s.repo.DeleteRoomBlock(ctx,blockID)
 	if err != nil {
@@ -233,6 +258,11 @@ func (s *RoomService)CountAvailableRooms(ctx context.Context, checkInStr, checkO
 }
 
 func (s *RoomService)FindAvailableRoom(ctx context.Context, roomTypeID int, checkInStr, checkOutStr string) (int, error){
+
+	if roomTypeID <= 0 {
+		logger.Warn("validation failed: missing roomTypeID")
+		return 0, errs.NewValidationError("room type ID is required")
+	}
 
 	checkIn, err := utils.ParseDate(checkInStr,"check-in")
 	if err != nil {

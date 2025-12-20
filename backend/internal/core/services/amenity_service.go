@@ -42,6 +42,11 @@ func (s *AmenityService)AddAmenity(ctx context.Context, amenity *domain.Amenity)
 func (s *AmenityService)GetAmenity(ctx context.Context, id int) (*domain.Amenity, error){
 	logger.Info("GetAmenity called", zap.Int("AmenityID", id))
 
+	if id <= 0 {
+		logger.Warn("validation failed: missing amenityID")
+		return nil, errs.NewValidationError("amenity ID is required")
+	}
+
 	amenity,err := s.repo.GetAmenityByID(ctx,id)
 	if err != nil {
 		if errors.Is(err, errs.ErrNotFound) {
@@ -74,6 +79,11 @@ func (s *AmenityService)ChangeAmenity(ctx context.Context, amenity *domain.Ameni
 		zap.String("AmenityName", amenity.Name),
 	)
 
+	if amenity.AmenityID <= 0 {
+		logger.Warn("validation failed: missing amenityID")
+		return errs.NewValidationError("amenity ID is required")
+	}
+
 	if amenity.Name == "" {
 		logger.Warn("validation failed: missing amenity name")
 		return errs.NewValidationError("amenity name is required")
@@ -93,6 +103,11 @@ func (s *AmenityService)ChangeAmenity(ctx context.Context, amenity *domain.Ameni
 }
 func (s *AmenityService) RemoveAmenity(ctx context.Context, id int) error{
 	logger.Info("RemoveAmenity called", zap.Int("AmenityID", id))
+
+	if id <= 0 {
+		logger.Warn("validation failed: missing amenityID")
+		return errs.NewValidationError("amenity ID is required")
+	}
 
 	err := s.repo.DeleteAmenity(ctx,id)
 	if err != nil {

@@ -43,7 +43,7 @@ func (r *AmenityRepository)GetAmenityByID(ctx context.Context, id int) (*domain.
 	err := r.db.GetContext(ctx, &m, q, id)
 	if err != nil {
 		if err == sql.ErrNoRows{
-			return nil, errs.ErrNotFound
+			return nil, fmt.Errorf("amenity id %d : %w",id,errs.ErrNotFound)
 		}
 		return nil, err
 	}

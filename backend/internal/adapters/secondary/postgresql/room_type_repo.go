@@ -76,6 +76,9 @@ func (r *RoomTypeRepository) UpdateRoomType(ctx context.Context, rt *domain.Room
     m.Name, m.Description, m.SizeSQM, m.BedType, m.Capacity, m.PictureURL,
 		m.RoomTypeID,
   )
+  if err != nil {
+    return err
+  }
 
 	rows, err := result.RowsAffected()
 	if err != nil {
@@ -83,7 +86,7 @@ func (r *RoomTypeRepository) UpdateRoomType(ctx context.Context, rt *domain.Room
 	}
 
 	if rows == 0 {
-		return fmt.Errorf("no room type found with id %d", m.RoomTypeID)
+		return fmt.Errorf("no room type found with id %d:%w", m.RoomTypeID,errs.ErrNotFound)
 	}
 
 	qDelete := `DELETE FROM roomtype_amenities WHERE room_type_id = $1`
@@ -144,7 +147,7 @@ func (r *RoomTypeRepository)GetRoomTypeByID(ctx context.Context, id int) (*domai
     err := r.db.GetContext(ctx, &model, q, id)
     if err != nil {
       if err == sql.ErrNoRows {
-        return nil, fmt.Errorf("room type not found")
+        return nil, fmt.Errorf("room type not found:%w",errs.ErrNotFound)
       }
       return nil, err
     }
@@ -203,7 +206,7 @@ func (r *RoomTypeRepository)GetRoomTypeFullDetail(ctx context.Context, id int) (
     err := r.db.GetContext(ctx, &model, q, id)
     if err != nil {
       if err == sql.ErrNoRows {
-        return nil, fmt.Errorf("room type not found")
+        return nil, fmt.Errorf("room type not found:%w",errs.ErrNotFound)
       }
       return nil, err
     }

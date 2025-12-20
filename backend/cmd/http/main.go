@@ -31,17 +31,20 @@ func main() {
 		roomRepo := postgresql.NewRoomRepository(db)
 		amenityRepo := postgresql.NewAmenityRepository(db)
 		roomTypeRepo := postgresql.NewRoomTypeRepository(db)
+		addonRepo := postgresql.NewAddonRepository(db)
 
 
 		// Services
 		roomSvc := services.NewRoomService(roomRepo)
 		amenitySvc := services.NewAmenityService(amenityRepo)
 		roomTypeSvc := services.NewRoomTypeService(roomTypeRepo)
+		addonSvc := services.NewAddonService(addonRepo)
 
 		// Handlers
 		roomHandler := handlers.NewRoomHandler(roomSvc)
 		amenityHandler := handlers.NewAmenityHandler(amenitySvc)
 		roomTypeHandler := handlers.NewRoomTypeHandler(roomTypeSvc)
+		addonHandler := handlers.NewAddonHandler(addonSvc)
 
 
 		// Server
@@ -59,6 +62,7 @@ func main() {
 		routes.RoomRoutes(app,roomHandler)
 		routes.AmenityRoutes(app, amenityHandler)
 		routes.RoomTypeRoutes(app, roomTypeHandler)
+		routes.AddonRouter(app,addonHandler)
 
 		addr := fmt.Sprintf(":%d", viper.GetInt("app.port"))
 		logger.Info("Hotel service starting at port " + viper.GetString("app.port"))

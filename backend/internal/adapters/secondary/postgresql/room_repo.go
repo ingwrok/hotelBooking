@@ -86,7 +86,7 @@ func (r *RoomRepository)GetRoomByID(ctx context.Context, id int) (*domain.Room, 
   err := r.db.GetContext(ctx, &m, q, id)
   if err != nil {
     if err == sql.ErrNoRows {
-      return nil, errs.ErrNotFound
+      return nil, fmt.Errorf("room id %d: %w", id, errs.ErrNotFound)
     }
     return nil, err
   }

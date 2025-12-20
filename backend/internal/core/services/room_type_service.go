@@ -43,6 +43,11 @@ func (s *RoomTypeService) ChangeRoomType(ctx context.Context, rt *domain.RoomTyp
 		zap.Int("roomTypeID", rt.RoomTypeID),
 	)
 
+	if rt.RoomTypeID <= 0 {
+		logger.Warn("validation failed: missing room type ID")
+		return errs.NewValidationError("room type ID is required")
+	}
+
 	if rt.Name == "" || rt.Description == "" || rt.BedType == "" ||
 		rt.Capacity <= 0 || rt.SizeSQM <= 0 {
 			logger.Warn("validation failed: missing or invalid input")
@@ -68,6 +73,11 @@ func (s *RoomTypeService) ChangeRoomType(ctx context.Context, rt *domain.RoomTyp
 func (s *RoomTypeService) RemoveRoomType(ctx context.Context, id int) error {
 	logger.Info("RemoveRoomType called", zap.Int("RoomTypeID", id))
 
+	if id <= 0 {
+		logger.Warn("validation failed: missing room type ID")
+		return errs.NewValidationError("room type ID is required")
+	}
+
 	err := s.repo.DeleteRoomType(ctx,id)
 	if err != nil {
 		if errors.Is(err, errs.ErrNotFound) {
@@ -82,6 +92,11 @@ func (s *RoomTypeService) RemoveRoomType(ctx context.Context, id int) error {
 
 func (s *RoomTypeService) GetRoomType(ctx context.Context,id int)(*domain.RoomType,error){
 	logger.Info("GetRoomType called",zap.Int("roomID",id))
+
+	if id <= 0 {
+		logger.Warn("validation failed: missing roomID")
+		return nil, errs.NewValidationError("roomTypeID is required")
+	}
 
 	rt, err := s.repo.GetRoomTypeByID(ctx,id)
 	if err != nil {
@@ -110,6 +125,11 @@ func (s *RoomTypeService) ListRoomTypes(ctx context.Context) ([]*domain.RoomType
 
 func (s *RoomTypeService) GetRoomTypeFullDetail(ctx context.Context,id int)(*domain.RoomTypeDetails,error){
 	logger.Info("GetRoomTypeFullDetail called",zap.Int("roomID",id))
+
+	if id <= 0 {
+		logger.Warn("validation failed: missing roomID")
+		return nil, errs.NewValidationError("roomTypeID is required")
+	}
 
 	rtf, err := s.repo.GetRoomTypeFullDetail(ctx,id)
 	if err != nil {
