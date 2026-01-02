@@ -9,6 +9,14 @@ type Room struct {
 	Status 			string
 }
 
+type RoomDetail struct {
+	RoomID					int
+	RoomTypeID		int
+	RoomTypeName	string
+	RoomNumber		string
+	Status 			string
+}
+
 type RoomType struct {
 	RoomTypeID		int
 	Name				string

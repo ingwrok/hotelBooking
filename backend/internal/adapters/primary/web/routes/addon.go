@@ -5,7 +5,7 @@ import (
 	"github.com/ingwrok/hotelBooking/internal/adapters/primary/web/handlers"
 )
 
-func AddonRouter(app *fiber.App, h *handlers.AddonHandler){
+func AddonRoutes(app *fiber.App, h *handlers.AddonHandler){
 	api := app.Group("/api")
 
 	categories := api.Group("/addon-categories")

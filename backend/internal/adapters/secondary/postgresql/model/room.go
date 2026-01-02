@@ -10,14 +10,16 @@ import (
 type Room struct {
 	RoomID					int `db:"room_id"`
 	RoomTypeID		int `db:"room_type_id"`
+	RoomTypeName	string `db:"room_type_name"`
 	RoomNumber		string `db:"room_number"`
 	Status 			string `db:"status"`
 }
 
-func (m *Room) ToDomain() *domain.Room {
-	return &domain.Room{
+func (m *Room) ToDomain() *domain.RoomDetail {
+	return &domain.RoomDetail{
 		RoomID:         m.RoomID,
 		RoomTypeID: m.RoomTypeID,
+		RoomTypeName: m.RoomTypeName,
 		RoomNumber: m.RoomNumber,
 		Status:     m.Status,
 	}

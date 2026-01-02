@@ -105,6 +105,7 @@ func (h *RoomHandler) GetRoom(c *fiber.Ctx) error {
 	return c.Status(200).JSON(dto.RoomResponse{
 		RoomID:     room.RoomID,
 		RoomTypeID: room.RoomTypeID,
+		RoomTypeName: room.RoomTypeName,
 		RoomNumber: room.RoomNumber,
 		Status:     room.Status,
 	})
@@ -124,6 +125,7 @@ func (h *RoomHandler) ListRooms(c *fiber.Ctx) error {
 		resRoom[i] = dto.RoomResponse{
 			RoomID:     r.RoomID,
 			RoomTypeID: r.RoomTypeID,
+			RoomTypeName: r.RoomTypeName,
 			RoomNumber: r.RoomNumber,
 			Status:     r.Status,
 		}

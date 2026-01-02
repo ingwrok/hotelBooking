@@ -13,8 +13,8 @@ type RoomRepository interface {
     UpdateRoomStatus(ctx context.Context, roomID int, status string) error
 
 		// read Room
-		GetRoomByID(ctx context.Context, id int) (*domain.Room, error) // คืนค่า Room นะ ไม่ใช่ RoomType
-    GetAllRooms(ctx context.Context) ([]*domain.Room, error)
+		GetRoomByID(ctx context.Context, id int) (*domain.RoomDetail, error) // คืนค่า Room นะ ไม่ใช่ RoomType
+    GetAllRooms(ctx context.Context) ([]*domain.RoomDetail, error)
 
     // Room Block
     CheckIfBlockOverlaps(ctx context.Context,roomID int,startDate,endDate time.Time,) (int, error)

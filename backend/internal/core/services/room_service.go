@@ -104,7 +104,7 @@ func (s *RoomService)ChangeRoomStatus(ctx context.Context, roomID int, status st
 	return nil
 }
 
-func (s *RoomService)GetRoom(ctx context.Context, id int) (*domain.Room, error){
+func (s *RoomService)GetRoom(ctx context.Context, id int) (*domain.RoomDetail, error){
 	logger.Info("GetRoom called", zap.Int("roomID", id))
 
 	if id <= 0 {
@@ -125,7 +125,7 @@ func (s *RoomService)GetRoom(ctx context.Context, id int) (*domain.Room, error){
 	return room, nil
 }
 
-func (s *RoomService)ListRooms(ctx context.Context) ([]*domain.Room, error){
+func (s *RoomService)ListRooms(ctx context.Context) ([]*domain.RoomDetail, error){
 	logger.Info("ListRooms called")
 
 	rooms, err := s.repo.GetAllRooms(ctx)

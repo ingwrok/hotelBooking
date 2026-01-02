@@ -10,6 +10,7 @@ type RoomRequest struct {
 type RoomResponse struct {
 	RoomID					int `json:"room_id"`
 	RoomTypeID		int `json:"room_type_id"`
+	RoomTypeName	string `json:"room_type_name"`
 	RoomNumber		string `json:"room_number"`
 	Status 			string `json:"status"`
 }
