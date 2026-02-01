@@ -11,10 +11,13 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/fiber/v2/middleware/limiter"
 	fiberlogger "github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/ingwrok/hotelBooking/internal/adapters/primary/web/handlers"
 	"github.com/ingwrok/hotelBooking/internal/adapters/primary/web/routes"
+	"github.com/ingwrok/hotelBooking/internal/adapters/secondary/cloudinary"
+	"github.com/ingwrok/hotelBooking/internal/adapters/secondary/email"
 	"github.com/ingwrok/hotelBooking/internal/adapters/secondary/postgresql"
 	"github.com/ingwrok/hotelBooking/internal/common/logger"
 	"github.com/ingwrok/hotelBooking/internal/core/services"
@@ -42,14 +45,28 @@ func main() {
 	addonRepo := postgresql.NewAddonRepository(db)
 	rateplanRepo := postgresql.NewRatePlanRepository(db)
 	bookingRepo := postgresql.NewBookingRepository(db)
+	userRepo := postgresql.NewUserRepository(db)
+
+	// Adapters
+	cldCloudName := os.Getenv("CLOUDINARY_CLOUD_NAME")
+	cldAPIKey := os.Getenv("CLOUDINARY_API_KEY")
+	cldAPISecret := os.Getenv("CLOUDINARY_API_SECRET")
+	imgUploader, err := cloudinary.NewCloudinaryImageUploader(cldCloudName, cldAPIKey, cldAPISecret)
+	if err != nil {
+		logger.ErrorErr(err, "Failed to init Cloudinary")
+	}
+	userSvc := services.NewUserService(userRepo)
+
+	// Email Service
+	emailAdapter := email.NewGomailAdapter()
 
 	// Services
 	roomSvc := services.NewRoomService(roomRepo)
 	amenitySvc := services.NewAmenityService(amenityRepo)
-	roomTypeSvc := services.NewRoomTypeService(roomTypeRepo)
-	addonSvc := services.NewAddonService(addonRepo)
+	roomTypeSvc := services.NewRoomTypeService(roomTypeRepo, imgUploader)
+	addonSvc := services.NewAddonService(addonRepo, imgUploader)
 	rateplanSvc := services.NewRatePlanService(rateplanRepo)
-	bookingSvc := services.NewBookingService(bookingRepo, roomRepo, rateplanRepo, addonRepo)
+	bookingSvc := services.NewBookingService(bookingRepo, roomRepo, rateplanRepo, addonRepo, emailAdapter)
 
 	// Handlers
 	roomHandler := handlers.NewRoomHandler(roomSvc)
@@ -58,14 +75,29 @@ func main() {
 	addonHandler := handlers.NewAddonHandler(addonSvc)
 	rateplanHandler := handlers.NewRatePlanHandler(rateplanSvc)
 	bookingHandler := handlers.NewBookingHandler(bookingSvc)
+	userHandler := handlers.NewUserHandler(userSvc)
 
 	go startBookingCleanupWorker(ctx, bookingSvc)
 
 	// Server
 	app := fiber.New()
 	app.Use(recover.New(), fiberlogger.New())
+
+	// Rate Limiting
+	app.Use(limiter.New(limiter.Config{
+		Max:               100,
+		Expiration:        1 * time.Minute,
+		LimiterMiddleware: limiter.SlidingWindow{},
+	}))
+
+	// CORS
+	allowOrigins := viper.GetString("cors.allow_origins")
+	if allowOrigins == "" {
+		allowOrigins = "http://localhost:5173, https://yourdomain.com"
+	}
+
 	app.Use(cors.New(cors.Config{
-		AllowOrigins:     "http://localhost:3000, https://yourdomain.com",
+		AllowOrigins:     allowOrigins,
 		AllowMethods:     "GET,POST,PUT,DELETE,PATCH,OPTIONS",
 		AllowHeaders:     "Origin, Content-Type, Accept, Authorization",
 		ExposeHeaders:    "Content-Length",
@@ -73,12 +105,13 @@ func main() {
 	}))
 
 	// Routes
-	routes.RoomRoutes(app, roomHandler)
-	routes.AmenityRoutes(app, amenityHandler)
-	routes.RoomTypeRoutes(app, roomTypeHandler)
-	routes.AddonRoutes(app, addonHandler)
-	routes.RatePlanRoutes(app, rateplanHandler)
-	routes.BookingRoutes(app, bookingHandler)
+	routes.RoomRoutes(app, roomHandler, userSvc)
+	routes.AmenityRoutes(app, amenityHandler, userSvc)
+	routes.RoomTypeRoutes(app, roomTypeHandler, userSvc)
+	routes.AddonRoutes(app, addonHandler, userSvc)
+	routes.RatePlanRoutes(app, rateplanHandler, userSvc)
+	routes.BookingRoutes(app, bookingHandler, userSvc, bookingSvc)
+	routes.UserRoutes(app, userHandler, userSvc)
 
 	go func() {
 		addr := fmt.Sprintf(":%d", viper.GetInt("app.port"))
@@ -117,6 +150,7 @@ func initConfig() {
 	viper.BindEnv("db.password", "DB_PASSWORD")
 	viper.BindEnv("db.sslmode", "DB_SSLMODE")
 	viper.BindEnv("secret", "APP_SECRET")
+	viper.BindEnv("cors.allow_origins", "CORS_ALLOW_ORIGINS")
 
 	viper.AutomaticEnv()
 	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))

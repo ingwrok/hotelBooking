@@ -10,15 +10,16 @@ type Booking struct {
 	CheckInDate   time.Time
 	CheckOutDate  time.Time
 	NumAdults     int
+	Email         string
 	Status        string
 	RoomSubTotal  float64
 	AddonSubTotal float64
 	TaxesAmount   float64
 	TotalPrice    float64
 	CreatedAt     time.Time
-  UpdatedAt     time.Time
-  ExpiredAt     time.Time
-	BookingAddon []*BookingAddon
+	UpdatedAt     time.Time
+	ExpiredAt     time.Time
+	BookingAddon  []*BookingAddon
 }
 
 type BookingDetail struct {
@@ -35,14 +36,15 @@ type BookingDetail struct {
 	TaxesAmount   float64
 	TotalPrice    float64
 	CreatedAt     time.Time
-  UpdatedAt     time.Time
-  ExpiredAt     time.Time
-	BookingAddon []*BookingAddon
-	RatePlanName string
-	RoomNumber   string
-	RoomTypeName string
+	UpdatedAt     time.Time
+	ExpiredAt     time.Time
+	BookingAddon  []*BookingAddon
+	RatePlanName  string
+	RoomNumber    string
+	RoomTypeName  string
+	Email         string
+	UserName      string
 }
-
 
 type BookingAddon struct {
 	BookingAddonID int

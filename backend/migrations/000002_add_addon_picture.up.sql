@@ -1,0 +1,1 @@
+ALTER TABLE addons ADD COLUMN IF NOT EXISTS picture_url TEXT;

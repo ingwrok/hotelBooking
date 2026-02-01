@@ -12,5 +12,7 @@ type BookingRepository interface {
 	UpdateBookingStatus(ctx context.Context, bookingID int, status string) error
 	SyncBookingAddons(ctx context.Context, bookingID int, addons []*domain.BookingAddon, newTotalPrice float64) error
 	GetBookingAddonsByBookingID(ctx context.Context, bookingID int) ([]*domain.BookingAddon, error)
-	 CancelExpiredBookings(ctx context.Context) (int64, error) 
+	CancelExpiredBookings(ctx context.Context) (int64, error)
+	GetBookingsByUserID(ctx context.Context, userID int) ([]*domain.BookingDetail, error)
+	GetAllBookings(ctx context.Context) ([]*domain.BookingDetail, error)
 }

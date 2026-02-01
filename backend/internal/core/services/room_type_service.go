@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"errors"
+	"io"
 
 	"github.com/ingwrok/hotelBooking/internal/common/errs"
 	"github.com/ingwrok/hotelBooking/internal/common/logger"
@@ -12,11 +13,15 @@ import (
 )
 
 type RoomTypeService struct {
-	repo ports.RoomTypeRepository
+	repo        ports.RoomTypeRepository
+	imgUploader ports.ImageUploader
 }
 
-func NewRoomTypeService(repo ports.RoomTypeRepository) *RoomTypeService {
-	return &RoomTypeService{repo: repo}
+func NewRoomTypeService(repo ports.RoomTypeRepository, imgUploader ports.ImageUploader) *RoomTypeService {
+	return &RoomTypeService{
+		repo:        repo,
+		imgUploader: imgUploader,
+	}
 }
 
 func (s *RoomTypeService) AddRoomType(ctx context.Context, rt *domain.RoomType) (*domain.RoomType, error) {
@@ -38,7 +43,7 @@ func (s *RoomTypeService) AddRoomType(ctx context.Context, rt *domain.RoomType) 
 	return rt, nil
 }
 
-func (s *RoomTypeService) ChangeRoomType(ctx context.Context, rt *domain.RoomType) error{
+func (s *RoomTypeService) ChangeRoomType(ctx context.Context, rt *domain.RoomType) error {
 	logger.Info("ChangeRoomType called",
 		zap.Int("roomTypeID", rt.RoomTypeID),
 	)
@@ -50,14 +55,14 @@ func (s *RoomTypeService) ChangeRoomType(ctx context.Context, rt *domain.RoomTyp
 
 	if rt.Name == "" || rt.Description == "" || rt.BedType == "" ||
 		rt.Capacity <= 0 || rt.SizeSQM <= 0 {
-			logger.Warn("validation failed: missing or invalid input")
-			return errs.NewValidationError("room type invalid input")
+		logger.Warn("validation failed: missing or invalid input")
+		return errs.NewValidationError("room type invalid input")
 	}
 
 	err := s.repo.UpdateRoomType(ctx, rt)
 	if err != nil {
-		if errors.Is(err, errs.ErrNotFound){
-			logger.Warn("room type not found", zap.Int("roomTypeID",rt.RoomTypeID))
+		if errors.Is(err, errs.ErrNotFound) {
+			logger.Warn("room type not found", zap.Int("roomTypeID", rt.RoomTypeID))
 			return errs.NewNotFoundError("room type not found")
 		}
 		logger.ErrorErr(err, "repo.UpdateRoomType failed")
@@ -65,7 +70,7 @@ func (s *RoomTypeService) ChangeRoomType(ctx context.Context, rt *domain.RoomTyp
 	}
 
 	logger.Info("room status updated",
-		zap.Int("roomTypeID",rt.RoomTypeID),
+		zap.Int("roomTypeID", rt.RoomTypeID),
 	)
 	return nil
 }
@@ -78,7 +83,7 @@ func (s *RoomTypeService) RemoveRoomType(ctx context.Context, id int) error {
 		return errs.NewValidationError("room type ID is required")
 	}
 
-	err := s.repo.DeleteRoomType(ctx,id)
+	err := s.repo.DeleteRoomType(ctx, id)
 	if err != nil {
 		if errors.Is(err, errs.ErrNotFound) {
 			logger.Warn("room type not found", zap.Int("RoomTypeID", id))
@@ -90,25 +95,25 @@ func (s *RoomTypeService) RemoveRoomType(ctx context.Context, id int) error {
 	return nil
 }
 
-func (s *RoomTypeService) GetRoomType(ctx context.Context,id int)(*domain.RoomType,error){
-	logger.Info("GetRoomType called",zap.Int("roomID",id))
+func (s *RoomTypeService) GetRoomType(ctx context.Context, id int) (*domain.RoomType, error) {
+	logger.Info("GetRoomType called", zap.Int("roomID", id))
 
 	if id <= 0 {
 		logger.Warn("validation failed: missing roomID")
 		return nil, errs.NewValidationError("roomTypeID is required")
 	}
 
-	rt, err := s.repo.GetRoomTypeByID(ctx,id)
+	rt, err := s.repo.GetRoomTypeByID(ctx, id)
 	if err != nil {
-		if errors.Is(err, errs.ErrNotFound){
-			logger.Warn("roomType not found",zap.Int("roomTypeID",id))
+		if errors.Is(err, errs.ErrNotFound) {
+			logger.Warn("roomType not found", zap.Int("roomTypeID", id))
 			return nil, errs.NewNotFoundError("roomType not found")
 		}
-		logger.ErrorErr(err,"GetRoomTypeByID failed")
-		return nil,errs.NewUnexpectedError("failed to get roomType")
+		logger.ErrorErr(err, "GetRoomTypeByID failed")
+		return nil, errs.NewUnexpectedError("failed to get roomType")
 	}
-	logger.Debug("roomType fetched", zap.Int("roomTypeID",id))
-	return rt,nil
+	logger.Debug("roomType fetched", zap.Int("roomTypeID", id))
+	return rt, nil
 }
 
 func (s *RoomTypeService) ListRoomTypes(ctx context.Context) ([]*domain.RoomType, error) {
@@ -119,27 +124,44 @@ func (s *RoomTypeService) ListRoomTypes(ctx context.Context) ([]*domain.RoomType
 		logger.ErrorErr(err, "GetAllRomTypes failed")
 		return nil, errs.NewUnexpectedError("failed to retrieve list roomTypes")
 	}
-	logger.Debug("roomType list returned",zap.Int("count",len(rts)))
-	return rts,nil
+	logger.Debug("roomType list returned", zap.Int("count", len(rts)))
+	return rts, nil
 }
 
-func (s *RoomTypeService) GetRoomTypeFullDetail(ctx context.Context,id int)(*domain.RoomTypeDetails,error){
-	logger.Info("GetRoomTypeFullDetail called",zap.Int("roomID",id))
+func (s *RoomTypeService) GetRoomTypeFullDetail(ctx context.Context, id int) (*domain.RoomTypeDetails, error) {
+	logger.Info("GetRoomTypeFullDetail called", zap.Int("roomID", id))
 
 	if id <= 0 {
 		logger.Warn("validation failed: missing roomID")
 		return nil, errs.NewValidationError("roomTypeID is required")
 	}
 
-	rtf, err := s.repo.GetRoomTypeFullDetail(ctx,id)
+	rtf, err := s.repo.GetRoomTypeFullDetail(ctx, id)
 	if err != nil {
-		if errors.Is(err, errs.ErrNotFound){
-			logger.Warn("roomType not found",zap.Int("roomTypeID",id))
+		if errors.Is(err, errs.ErrNotFound) {
+			logger.Warn("roomType not found", zap.Int("roomTypeID", id))
 			return nil, errs.NewNotFoundError("roomType not found")
 		}
-		logger.ErrorErr(err,"GetRoomTypeByID failed")
-		return nil,errs.NewUnexpectedError("failed to get roomType")
+		logger.ErrorErr(err, "GetRoomTypeByID failed")
+		return nil, errs.NewUnexpectedError("failed to get roomType")
 	}
-	logger.Debug("roomType fetched", zap.Int("roomTypeID",id))
-	return rtf,nil
+	logger.Debug("roomType fetched", zap.Int("roomTypeID", id))
+	return rtf, nil
+}
+
+func (s *RoomTypeService) UploadRoomTypeImage(ctx context.Context, file io.Reader, filename string) (string, error) {
+	logger.Info("UploadRoomTypeImage called", zap.String("filename", filename))
+
+	if s.imgUploader == nil {
+		logger.Error("ImageUploader is not configured")
+		return "", errs.NewUnexpectedError("image upload service is unavailable")
+	}
+
+	url, err := s.imgUploader.UploadImage(ctx, file, filename)
+	if err != nil {
+		logger.ErrorErr(err, "imgUploader.UploadImage failed")
+		return "", err
+	}
+
+	return url, nil
 }

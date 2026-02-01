@@ -124,12 +124,12 @@ func (r *AddonRepository) DeleteAddonCategory(ctx context.Context, categoryID in
 
 func (r *AddonRepository) CreateAddon(ctx context.Context, addon *domain.Addon) error {
 	m := model.FromDomainAddon(addon)
-	q := `INSERT INTO addons (category_id, name, description, price, unit_name)
-	      VALUES ($1, $2, $3, $4, $5)
+	q := `INSERT INTO addons (category_id, name, description, price, unit_name, picture_url)
+	      VALUES ($1, $2, $3, $4, $5, $6)
 				RETURNING addon_id`
 
 	var newID int
-	err := r.db.QueryRowContext(ctx, q, m.CategoryID, m.Name, m.Description, m.Price, m.UnitName).Scan(&newID)
+	err := r.db.QueryRowContext(ctx, q, m.CategoryID, m.Name, m.Description, m.Price, m.UnitName, m.PictureURL).Scan(&newID)
 	if err != nil {
 		return err
 	}
@@ -165,8 +165,9 @@ func (r *AddonRepository) UpdateAddon(ctx context.Context, addon *domain.Addon) 
 					name = $2,
 					description = $3,
 					price = $4,
-					unit_name = $5
-				WHERE addon_id = $6`
+					unit_name = $5,
+					picture_url = $6
+				WHERE addon_id = $7`
 
 	result, err := r.db.ExecContext(ctx, q,
 		m.CategoryID,
@@ -174,6 +175,7 @@ func (r *AddonRepository) UpdateAddon(ctx context.Context, addon *domain.Addon) 
 		m.Description,
 		m.Price,
 		m.UnitName,
+		m.PictureURL,
 		m.AddonID,
 	)
 	if err != nil {
@@ -194,7 +196,7 @@ func (r *AddonRepository) UpdateAddon(ctx context.Context, addon *domain.Addon) 
 
 func (r *AddonRepository) GetAddonByID(ctx context.Context, addonID int) (*domain.Addon, error) {
 	var m model.Addon
-	q := `SELECT addon_id, category_id, name, description, price, unit_name
+	q := `SELECT addon_id, category_id, name, description, price, unit_name, picture_url
 	      FROM addons
 				WHERE addon_id = $1`
 
@@ -211,7 +213,7 @@ func (r *AddonRepository) GetAddonByID(ctx context.Context, addonID int) (*domai
 
 func (r *AddonRepository) GetAllAddons(ctx context.Context) ([]*domain.Addon, error) {
 	var models []model.Addon
-	q := `SELECT addon_id, category_id, name, description, price, unit_name
+	q := `SELECT addon_id, category_id, name, description, price, unit_name, picture_url
 	      FROM addons`
 
 	err := r.db.SelectContext(ctx, &models, q)
@@ -229,7 +231,7 @@ func (r *AddonRepository) GetAllAddons(ctx context.Context) ([]*domain.Addon, er
 
 func (r *AddonRepository) GetAddonByCategoryID(ctx context.Context, categoryID int) ([]*domain.Addon, error) {
 	var models []model.Addon
-	q := `SELECT addon_id, category_id, name, description, price, unit_name
+	q := `SELECT addon_id, category_id, name, description, price, unit_name, picture_url
 	      FROM addons
 				WHERE category_id = $1`
 

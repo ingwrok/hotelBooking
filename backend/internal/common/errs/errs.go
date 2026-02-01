@@ -6,9 +6,11 @@ import (
 )
 
 var (
-	ErrNotFound   = errors.New("not found")
-	ErrValidation = errors.New("validation error")
-	ErrUnexpected = errors.New("unexpected error")
+	ErrNotFound     = errors.New("not found")
+	ErrValidation   = errors.New("validation error")
+	ErrUnexpected   = errors.New("unexpected error")
+	ErrUnauthorized = errors.New("unauthorized")
+	ErrForbidden    = errors.New("forbidden")
 )
 
 type AppError struct {
@@ -46,5 +48,21 @@ func NewUnexpectedError(msg string) error {
 		Code:    http.StatusInternalServerError,
 		Message: msg,
 		Err:     ErrUnexpected,
+	}
+}
+
+func NewUnauthorizedError(msg string) error {
+	return AppError{
+		Code:    http.StatusUnauthorized,
+		Message: msg,
+		Err:     ErrUnauthorized,
+	}
+}
+
+func NewForbiddenError(msg string) error {
+	return AppError{
+		Code:    http.StatusForbidden,
+		Message: msg,
+		Err:     ErrForbidden,
 	}
 }

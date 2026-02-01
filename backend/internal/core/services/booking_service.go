@@ -19,14 +19,16 @@ type BookingService struct {
 	roomRepo     ports.RoomRepository
 	rateplanRepo ports.RatePlanRepository
 	addonRepo    ports.AddonRepository
+	emailRepo    ports.EmailRepository
 }
 
-func NewBookingService(b ports.BookingRepository, r ports.RoomRepository, rp ports.RatePlanRepository, a ports.AddonRepository) *BookingService {
+func NewBookingService(b ports.BookingRepository, r ports.RoomRepository, rp ports.RatePlanRepository, a ports.AddonRepository, e ports.EmailRepository) *BookingService {
 	return &BookingService{
 		bookingRepo:  b,
 		roomRepo:     r,
 		rateplanRepo: rp,
 		addonRepo:    a,
+		emailRepo:    e,
 	}
 }
 
@@ -37,7 +39,7 @@ func (s *BookingService) AddBooking(ctx context.Context, booking *domain.Booking
 		zap.Int("RoomTypeID", roomTypeID),
 	)
 
-	price,err := s.rateplanRepo.GetPriceByRoomType(ctx, roomTypeID, booking.RatePlanID)
+	price, err := s.rateplanRepo.GetPriceByRoomType(ctx, roomTypeID, booking.RatePlanID)
 	if err != nil {
 		if errors.Is(err, errs.ErrNotFound) {
 			return nil, fmt.Errorf("rate plan id %d: %w", booking.RatePlanID, errs.ErrNotFound)
@@ -92,6 +94,22 @@ func (s *BookingService) AddBooking(ctx context.Context, booking *domain.Booking
 		return nil, err
 	}
 
+	// Send Confirmation Email
+	go func() {
+		// Fetch full details (populated with joins) for the email
+		// Note: At this point, the transaction is committed, so we can read from DB.
+		details, dbErr := s.bookingRepo.GetBookingWithAddons(context.Background(), booking.BookingID)
+		if dbErr != nil {
+			logger.ErrorErr(dbErr, "failed to fetch booking for email")
+			return
+		}
+
+		emailCtx := context.Background()
+		if emailErr := s.emailRepo.SendBookingConfirmation(emailCtx, details, details.BookingAddon); emailErr != nil {
+			logger.ErrorErr(emailErr, "failed to send confirmation email")
+		}
+	}()
+
 	logger.Info("booking created successfully", zap.Int("BookingID", booking.BookingID))
 	return booking, err
 }
@@ -139,13 +157,34 @@ func (s *BookingService) ChangeStatus(ctx context.Context, bookingID int, status
 		return errs.NewValidationError("invalid status")
 	}
 
-	err := s.bookingRepo.UpdateBookingStatus(ctx, bookingID, normalizedStatus)
-	if err != nil {
+	// Just update status to confirmed for mock
+	if err := s.bookingRepo.UpdateBookingStatus(ctx, bookingID, normalizedStatus); err != nil {
 		if errors.Is(err, errs.ErrNotFound) {
 			return fmt.Errorf("booking id %d: %w", bookingID, errs.ErrNotFound)
 		}
 		logger.ErrorErr(err, "ChangeStatus failed")
 		return err
+	}
+
+	// If status changed to confirmed, resend email (receipt)
+	if normalizedStatus == "confirmed" {
+		go func() {
+			// Fetch full details to get email and addons
+			details, dbErr := s.bookingRepo.GetBookingWithAddons(context.Background(), bookingID)
+			if dbErr != nil {
+				logger.ErrorErr(dbErr, "failed to fetch booking for email")
+				return
+			}
+
+			details.Status = "confirmed"
+
+			emailCtx := context.Background()
+			if emailErr := s.emailRepo.SendBookingConfirmation(emailCtx, details, details.BookingAddon); emailErr != nil {
+				logger.ErrorErr(emailErr, "failed to send confirmation email")
+			} else {
+				logger.Info("confirmation email sent (payment success)", zap.String("email", details.Email))
+			}
+		}()
 	}
 
 	logger.Info("booking status changed successfully", zap.Int("BookingID", bookingID), zap.String("Status", status))
@@ -195,7 +234,7 @@ func (s *BookingService) GetAddonDetails(ctx context.Context, bookingID int) ([]
 
 	addons, err := s.bookingRepo.GetBookingAddonsByBookingID(ctx, bookingID)
 	if err != nil {
-		logger.ErrorErr(err,"GetAddonDetails failed")
+		logger.ErrorErr(err, "GetAddonDetails failed")
 		return nil, err
 	}
 
@@ -209,8 +248,39 @@ func (s *BookingService) CleanupExpiredBookings(ctx context.Context) (int64, err
 	rows, err := s.bookingRepo.CancelExpiredBookings(ctx)
 	if err != nil {
 		logger.ErrorErr(err, "CleanupExpiredBookings failed")
-		return 0,err
+		return 0, err
 	}
 	logger.Info("expired bookings cleaned up", zap.Int64("rowsAffected", rows))
 	return rows, nil
+}
+
+func (s *BookingService) GetMyHistory(ctx context.Context, userID int) ([]*domain.BookingDetail, error) {
+	logger.Info("GetMyHistory called", zap.Int("UserID", userID))
+
+	if userID <= 0 {
+		logger.Warn("validation failed: missing booking id")
+		return nil, errs.NewValidationError("invalid booking id")
+	}
+
+	bookings, err := s.bookingRepo.GetBookingsByUserID(ctx, userID)
+	if err != nil {
+		if errors.Is(err, errs.ErrNotFound) {
+			return nil, fmt.Errorf("booking id %d: %w", userID, errs.ErrNotFound)
+		}
+		logger.ErrorErr(err, "GetFullDetails failed")
+		return nil, err
+	}
+	logger.Debug("bookings returned", zap.Int("count", len(bookings)))
+	return bookings, nil
+}
+
+func (s *BookingService) GetAllBookings(ctx context.Context) ([]*domain.BookingDetail, error) {
+	logger.Info("GetAllBookings called (Admin)")
+	bookings, err := s.bookingRepo.GetAllBookings(ctx)
+	if err != nil {
+		logger.ErrorErr(err, "GetAllBookings failed")
+		return nil, errs.NewUnexpectedError("failed to retrieve all bookings")
+	}
+	logger.Debug("admin bookings returned", zap.Int("count", len(bookings)))
+	return bookings, nil
 }

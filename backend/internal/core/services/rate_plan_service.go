@@ -199,7 +199,7 @@ func (s *RatePlanService) RemoveRoomTypePrice(ctx context.Context, roomTypeID, r
 	return nil
 }
 
-func (s *RatePlanService)ListRatePlansByRoomType(ctx context.Context, roomTypeID int) ([]*domain.RatePlanFull, error) {
+func (s *RatePlanService) ListRatePlansByRoomType(ctx context.Context, roomTypeID int) ([]*domain.RatePlanFull, error) {
 	logger.Info("ListRatePlansByRoomType called",
 		zap.Int("RoomTypeID", roomTypeID),
 	)

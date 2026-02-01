@@ -5,36 +5,36 @@ import "time"
 type RatePlanRequest struct {
 	Name             string `json:"name"`
 	Description      string `json:"description"`
-	IsSpecialPackage bool   `json:"is_special_package"`
-	AllowFreeCancel  bool   `json:"allow_free_cancel"`
-	AllowPayLater    bool   `json:"allow_pay_later"`
+	IsSpecialPackage bool   `json:"isSpecialPackage"`
+	AllowFreeCancel  bool   `json:"allowFreeCancel"`
+	AllowPayLater    bool   `json:"allowPayLater"`
 }
 
 type RatePlanResponse struct {
-	RatePlanID       int       `json:"rate_plan_id"`
+	RatePlanID       int       `json:"ratePlanId"`
 	Name             string    `json:"name"`
 	Description      string    `json:"description"`
-	IsSpecialPackage bool      `json:"is_special_package"`
-	AllowFreeCancel  bool      `json:"allow_free_cancel"`
-	AllowPayLater    bool      `json:"allow_pay_later"`
-	CreatedAt        time.Time `json:"created_at"`
-	UpdatedAt        time.Time `json:"updated_at"`
+	IsSpecialPackage bool      `json:"isSpecialPackage"`
+	AllowFreeCancel  bool      `json:"allowFreeCancel"`
+	AllowPayLater    bool      `json:"allowPayLater"`
+	CreatedAt        time.Time `json:"createdAt"`
+	UpdatedAt        time.Time `json:"updatedAt"`
 }
 
 type RatePlanFullResponse struct {
-	RatePlanID       int       `json:"rate_plan_id"`
+	RatePlanID       int       `json:"ratePlanId"`
 	Name             string    `json:"name"`
 	Description      string    `json:"description"`
-	IsSpecialPackage bool      `json:"is_special_package"`
-	AllowFreeCancel  bool      `json:"allow_free_cancel"`
-	AllowPayLater    bool      `json:"allow_pay_later"`
+	IsSpecialPackage bool      `json:"isSpecialPackage"`
+	AllowFreeCancel  bool      `json:"allowFreeCancel"`
+	AllowPayLater    bool      `json:"allowPayLater"`
 	Price            float64   `json:"price"`
-	CreatedAt        time.Time `json:"created_at"`
-	UpdatedAt        time.Time `json:"updated_at"`
+	CreatedAt        time.Time `json:"createdAt"`
+	UpdatedAt        time.Time `json:"updatedAt"`
 }
 
 type RoomTypeRatePrice struct {
-	RoomTypeID int     `json:"room_type_id"`
-	RatePlanID int     `json:"rate_plan_id"`
+	RoomTypeID int     `json:"roomTypeId"`
+	RatePlanID int     `json:"ratePlanId"`
 	Price      float64 `json:"price"`
 }

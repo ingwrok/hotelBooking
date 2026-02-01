@@ -16,8 +16,8 @@ func NewAddonHandler(s *services.AddonService) *AddonHandler {
 }
 
 // --- Addon Category ---
-func (h *AddonHandler)CreateAddonCategory(c *fiber.Ctx) error{
-	ctx,cancel := buildCtx(c)
+func (h *AddonHandler) CreateAddonCategory(c *fiber.Ctx) error {
+	ctx, cancel := buildCtx(c)
 	defer cancel()
 
 	var req dto.AddonCategoryRequest
@@ -25,7 +25,7 @@ func (h *AddonHandler)CreateAddonCategory(c *fiber.Ctx) error{
 		return c.Status(400).JSON(fiber.Map{"message": "invalid request body"})
 	}
 
-	addon,err := h.svc.AddAddonCategory(ctx, &domain.AddonCategory{
+	addon, err := h.svc.AddAddonCategory(ctx, &domain.AddonCategory{
 		Name: req.Name,
 	})
 	if err != nil {
@@ -38,16 +38,16 @@ func (h *AddonHandler)CreateAddonCategory(c *fiber.Ctx) error{
 	})
 }
 
-func (h *AddonHandler)GetAddonCategory(c *fiber.Ctx) error{
-	ctx,cancel := buildCtx(c)
+func (h *AddonHandler) GetAddonCategory(c *fiber.Ctx) error {
+	ctx, cancel := buildCtx(c)
 	defer cancel()
 
-	id,err := c.ParamsInt("addon_category_id")
+	id, err := c.ParamsInt("addon_category_id")
 	if err != nil || id <= 0 {
 		return c.Status(400).JSON(fiber.Map{"message": "invalid addon category ID"})
 	}
 
-	addon,err := h.svc.GetAddonCategory(ctx,id)
+	addon, err := h.svc.GetAddonCategory(ctx, id)
 	if err != nil {
 		return handleError(c, err)
 	}
@@ -58,11 +58,11 @@ func (h *AddonHandler)GetAddonCategory(c *fiber.Ctx) error{
 	})
 }
 
-func (h *AddonHandler)ListAddonCategories(c *fiber.Ctx) error{
-	ctx,cancel := buildCtx(c)
+func (h *AddonHandler) ListAddonCategories(c *fiber.Ctx) error {
+	ctx, cancel := buildCtx(c)
 	defer cancel()
 
-	addons,err := h.svc.ListAddonCategories(ctx)
+	addons, err := h.svc.ListAddonCategories(ctx)
 	if err != nil {
 		return handleError(c, err)
 	}
@@ -78,11 +78,11 @@ func (h *AddonHandler)ListAddonCategories(c *fiber.Ctx) error{
 	return c.Status(200).JSON(resAddonCategories)
 }
 
-func (h *AddonHandler)UpdateAddonCategory(c *fiber.Ctx) error{
-	ctx,cancel := buildCtx(c)
+func (h *AddonHandler) UpdateAddonCategory(c *fiber.Ctx) error {
+	ctx, cancel := buildCtx(c)
 	defer cancel()
 
-	id,err := c.ParamsInt("addon_category_id")
+	id, err := c.ParamsInt("addon_category_id")
 	if err != nil || id <= 0 {
 		return c.Status(400).JSON(fiber.Map{"message": "invalid addon category ID"})
 	}
@@ -94,7 +94,7 @@ func (h *AddonHandler)UpdateAddonCategory(c *fiber.Ctx) error{
 
 	err = h.svc.ChangeAddonCategory(ctx, &domain.AddonCategory{
 		CategoryID: id,
-		Name: req.Name,
+		Name:       req.Name,
 	})
 
 	if err != nil {
@@ -104,16 +104,16 @@ func (h *AddonHandler)UpdateAddonCategory(c *fiber.Ctx) error{
 	return c.Status(200).JSON(fiber.Map{"message": "addon category updated successfully"})
 }
 
-func (h *AddonHandler)DeleteAddonCategory(c *fiber.Ctx) error{
-	ctx,cancel := buildCtx(c)
+func (h *AddonHandler) DeleteAddonCategory(c *fiber.Ctx) error {
+	ctx, cancel := buildCtx(c)
 	defer cancel()
 
-	id,err := c.ParamsInt("addon_category_id")
+	id, err := c.ParamsInt("addon_category_id")
 	if err != nil || id <= 0 {
 		return c.Status(400).JSON(fiber.Map{"message": "invalid addon category ID"})
 	}
 
-	err = h.svc.RemoveAddonCategory(ctx,id)
+	err = h.svc.RemoveAddonCategory(ctx, id)
 	if err != nil {
 		return handleError(c, err)
 	}
@@ -122,8 +122,8 @@ func (h *AddonHandler)DeleteAddonCategory(c *fiber.Ctx) error{
 }
 
 // // --- Addon ---
-func (h *AddonHandler)CreateAddon(c *fiber.Ctx) error{
-	ctx,cancel := buildCtx(c)
+func (h *AddonHandler) CreateAddon(c *fiber.Ctx) error {
+	ctx, cancel := buildCtx(c)
 	defer cancel()
 
 	var req dto.AddonRequest
@@ -131,7 +131,7 @@ func (h *AddonHandler)CreateAddon(c *fiber.Ctx) error{
 		return c.Status(400).JSON(fiber.Map{"message": "invalid request body"})
 	}
 
-	addon,err := h.svc.AddAddon(ctx, &domain.Addon{
+	addon, err := h.svc.AddAddon(ctx, &domain.Addon{
 		Name:        req.Name,
 		Description: req.Description,
 		Price:       req.Price,
@@ -150,19 +150,20 @@ func (h *AddonHandler)CreateAddon(c *fiber.Ctx) error{
 		Price:       addon.Price,
 		CategoryID:  addon.CategoryID,
 		UnitName:    addon.UnitName,
+		PictureURL:  addon.PictureURL,
 	})
 }
 
-func (h *AddonHandler)GetAddon(c *fiber.Ctx) error {
-	ctx,cancel := buildCtx(c)
+func (h *AddonHandler) GetAddon(c *fiber.Ctx) error {
+	ctx, cancel := buildCtx(c)
 	defer cancel()
 
-	id,err := c.ParamsInt("addon_id")
+	id, err := c.ParamsInt("addon_id")
 	if err != nil || id <= 0 {
 		return c.Status(400).JSON(fiber.Map{"message": "invalid addon ID"})
 	}
 
-	addon,err := h.svc.GetAddon(ctx,id)
+	addon, err := h.svc.GetAddon(ctx, id)
 	if err != nil {
 		return handleError(c, err)
 	}
@@ -174,14 +175,15 @@ func (h *AddonHandler)GetAddon(c *fiber.Ctx) error {
 		Price:       addon.Price,
 		CategoryID:  addon.CategoryID,
 		UnitName:    addon.UnitName,
+		PictureURL:  addon.PictureURL,
 	})
 }
 
-func (h *AddonHandler)ListAddons(c *fiber.Ctx) error{ 
-	ctx,cancel := buildCtx(c)
+func (h *AddonHandler) ListAddons(c *fiber.Ctx) error {
+	ctx, cancel := buildCtx(c)
 	defer cancel()
 
-	addons,err := h.svc.ListAddons(ctx)
+	addons, err := h.svc.ListAddons(ctx)
 	if err != nil {
 		return handleError(c, err)
 	}
@@ -195,22 +197,23 @@ func (h *AddonHandler)ListAddons(c *fiber.Ctx) error{
 			Price:       addon.Price,
 			CategoryID:  addon.CategoryID,
 			UnitName:    addon.UnitName,
+			PictureURL:  addon.PictureURL,
 		}
 	}
 
 	return c.Status(200).JSON(resAddons)
 }
 
-func (h *AddonHandler)ListAddonsByCategory(c *fiber.Ctx) error{
-	ctx,cancel := buildCtx(c)
+func (h *AddonHandler) ListAddonsByCategory(c *fiber.Ctx) error {
+	ctx, cancel := buildCtx(c)
 	defer cancel()
 
-	id,err := c.ParamsInt("addon_category_id")
+	id, err := c.ParamsInt("addon_category_id")
 	if err != nil || id <= 0 {
 		return c.Status(400).JSON(fiber.Map{"message": "invalid addon category ID"})
 	}
 
-	addons,err := h.svc.ListAddonsByCategory(ctx,id)
+	addons, err := h.svc.ListAddonsByCategory(ctx, id)
 	if err != nil {
 		return handleError(c, err)
 	}
@@ -223,17 +226,19 @@ func (h *AddonHandler)ListAddonsByCategory(c *fiber.Ctx) error{
 			Description: addon.Description,
 			Price:       addon.Price,
 			CategoryID:  addon.CategoryID,
+			UnitName:    addon.UnitName,
+			PictureURL:  addon.PictureURL,
 		}
 	}
 
 	return c.Status(200).JSON(resAddons)
 }
 
-func (h *AddonHandler)UpdateAddon(c *fiber.Ctx) error{
-	ctx,cancel := buildCtx(c)
+func (h *AddonHandler) UpdateAddon(c *fiber.Ctx) error {
+	ctx, cancel := buildCtx(c)
 	defer cancel()
 
-	id,err := c.ParamsInt("addon_id")
+	id, err := c.ParamsInt("addon_id")
 	if err != nil || id <= 0 {
 		return c.Status(400).JSON(fiber.Map{"message": "invalid addon ID"})
 	}
@@ -250,6 +255,7 @@ func (h *AddonHandler)UpdateAddon(c *fiber.Ctx) error{
 		Price:       req.Price,
 		CategoryID:  req.CategoryID,
 		UnitName:    req.UnitName,
+		PictureURL:  req.PictureURL,
 	})
 	if err != nil {
 		return handleError(c, err)
@@ -258,16 +264,16 @@ func (h *AddonHandler)UpdateAddon(c *fiber.Ctx) error{
 	return c.Status(200).JSON(fiber.Map{"message": "addon updated successfully"})
 }
 
-func (h *AddonHandler)DeleteAddon(c *fiber.Ctx) error{
-	ctx,cancel := buildCtx(c)
+func (h *AddonHandler) DeleteAddon(c *fiber.Ctx) error {
+	ctx, cancel := buildCtx(c)
 	defer cancel()
 
-	id,err := c.ParamsInt("addon_id")
+	id, err := c.ParamsInt("addon_id")
 	if err != nil || id <= 0 {
 		return c.Status(400).JSON(fiber.Map{"message": "invalid addon ID"})
 	}
 
-	err = h.svc.RemoveAddon(ctx,id)
+	err = h.svc.RemoveAddon(ctx, id)
 	if err != nil {
 		return handleError(c, err)
 	}
@@ -275,3 +281,27 @@ func (h *AddonHandler)DeleteAddon(c *fiber.Ctx) error{
 	return c.Status(200).JSON(fiber.Map{"message": "addon deleted successfully"})
 }
 
+func (h *AddonHandler) UploadImage(c *fiber.Ctx) error {
+	ctx, cancel := buildCtx(c)
+	defer cancel()
+
+	file, err := c.FormFile("image")
+	if err != nil {
+		return c.Status(400).JSON(fiber.Map{"message": "image file is required"})
+	}
+
+	src, err := file.Open()
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"message": "failed to open image file"})
+	}
+	defer src.Close()
+
+	url, err := h.svc.UploadAddonImage(ctx, src, file.Filename)
+	if err != nil {
+		return handleError(c, err)
+	}
+
+	return c.Status(200).JSON(fiber.Map{
+		"url": url,
+	})
+}

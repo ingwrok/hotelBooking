@@ -6,11 +6,11 @@ type AddonCategory struct {
 }
 
 type Addon struct {
-	AddonID   int
-	CategoryID int
-	Name      string
+	AddonID     int
+	CategoryID  int
+	Name        string
 	Description string
-	Price     float64
-	UnitName	string
+	Price       float64
+	UnitName    string
+	PictureURL  string
 }
-

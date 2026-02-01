@@ -16,7 +16,7 @@ func NewRoomTypeHandler(s *services.RoomTypeService) *RoomTypeHandler {
 }
 
 func (h *RoomTypeHandler) CreateRoomType(c *fiber.Ctx) error {
-	ctx,cancel := buildCtx(c)
+	ctx, cancel := buildCtx(c)
 	defer cancel()
 
 	var req dto.RoomTypeRequest
@@ -24,7 +24,7 @@ func (h *RoomTypeHandler) CreateRoomType(c *fiber.Ctx) error {
 		return c.Status(400).JSON(fiber.Map{"message": "invalid request body"})
 	}
 
-	roomType,err := h.svc.AddRoomType(ctx, &domain.RoomType{
+	roomType, err := h.svc.AddRoomType(ctx, &domain.RoomType{
 		Name:        req.Name,
 		Description: req.Description,
 		SizeSQM:     req.SizeSQM,
@@ -48,10 +48,10 @@ func (h *RoomTypeHandler) CreateRoomType(c *fiber.Ctx) error {
 	})
 }
 func (h *RoomTypeHandler) UpdateRoomType(c *fiber.Ctx) error {
-	ctx,cancel := buildCtx(c)
+	ctx, cancel := buildCtx(c)
 	defer cancel()
 
-	id,err := c.ParamsInt("room_type_id")
+	id, err := c.ParamsInt("room_type_id")
 	if err != nil || id <= 0 {
 		return c.Status(400).JSON(fiber.Map{"message": "invalid room type ID"})
 	}
@@ -79,15 +79,15 @@ func (h *RoomTypeHandler) UpdateRoomType(c *fiber.Ctx) error {
 }
 
 func (h *RoomTypeHandler) RemoveRoomType(c *fiber.Ctx) error {
-	ctx,cancel := buildCtx(c)
+	ctx, cancel := buildCtx(c)
 	defer cancel()
 
-	id,err := c.ParamsInt("room_type_id")
+	id, err := c.ParamsInt("room_type_id")
 	if err != nil || id <= 0 {
 		return c.Status(400).JSON(fiber.Map{"message": "invalid room type ID"})
 	}
 
-	err = h.svc.RemoveRoomType(ctx,id)
+	err = h.svc.RemoveRoomType(ctx, id)
 	if err != nil {
 		return handleError(c, err)
 	}
@@ -96,15 +96,15 @@ func (h *RoomTypeHandler) RemoveRoomType(c *fiber.Ctx) error {
 }
 
 func (h *RoomTypeHandler) GetRoomType(c *fiber.Ctx) error {
-	ctx,cancel := buildCtx(c)
+	ctx, cancel := buildCtx(c)
 	defer cancel()
 
-	id,err := c.ParamsInt("room_type_id")
+	id, err := c.ParamsInt("room_type_id")
 	if err != nil || id <= 0 {
 		return c.Status(400).JSON(fiber.Map{"message": "invalid room type ID"})
 	}
 
-	roomType,err := h.svc.GetRoomType(ctx,id)
+	roomType, err := h.svc.GetRoomType(ctx, id)
 	if err != nil {
 		return handleError(c, err)
 	}
@@ -117,20 +117,21 @@ func (h *RoomTypeHandler) GetRoomType(c *fiber.Ctx) error {
 		BedType:     roomType.BedType,
 		Capacity:    roomType.Capacity,
 		PictureURL:  roomType.PictureURL,
+		TotalRooms:  roomType.TotalRooms,
 	})
 }
 
 func (h *RoomTypeHandler) ListRoomTypes(c *fiber.Ctx) error {
-	ctx,cancel := buildCtx(c)
+	ctx, cancel := buildCtx(c)
 	defer cancel()
 
-	roomTypes,err := h.svc.ListRoomTypes(ctx)
+	roomTypes, err := h.svc.ListRoomTypes(ctx)
 	if err != nil {
 		return handleError(c, err)
 	}
 
-	resRoomTypes := make([]dto.RoomTypeResponse,len(roomTypes))
-	for i,rt := range roomTypes {
+	resRoomTypes := make([]dto.RoomTypeResponse, len(roomTypes))
+	for i, rt := range roomTypes {
 		resRoomTypes[i] = dto.RoomTypeResponse{
 			RoomTypeID:  rt.RoomTypeID,
 			Name:        rt.Name,
@@ -139,6 +140,7 @@ func (h *RoomTypeHandler) ListRoomTypes(c *fiber.Ctx) error {
 			BedType:     rt.BedType,
 			Capacity:    rt.Capacity,
 			PictureURL:  rt.PictureURL,
+			TotalRooms:  rt.TotalRooms,
 		}
 	}
 
@@ -146,15 +148,15 @@ func (h *RoomTypeHandler) ListRoomTypes(c *fiber.Ctx) error {
 }
 
 func (h *RoomTypeHandler) GetRoomTypeFullDetail(c *fiber.Ctx) error {
-	ctx,cancel := buildCtx(c)
+	ctx, cancel := buildCtx(c)
 	defer cancel()
 
-	id,err := c.ParamsInt("room_type_id")
+	id, err := c.ParamsInt("room_type_id")
 	if err != nil || id <= 0 {
 		return c.Status(400).JSON(fiber.Map{"message": "invalid room type ID"})
 	}
 
-	roomTypeDetails,err := h.svc.GetRoomTypeFullDetail(ctx,id)
+	roomTypeDetails, err := h.svc.GetRoomTypeFullDetail(ctx, id)
 	if err != nil {
 		return handleError(c, err)
 	}
@@ -168,5 +170,30 @@ func (h *RoomTypeHandler) GetRoomTypeFullDetail(c *fiber.Ctx) error {
 		Capacity:    roomTypeDetails.Capacity,
 		PictureURL:  roomTypeDetails.PictureURL,
 		Amenities:   roomTypeDetails.Amenities,
+	})
+}
+
+func (h *RoomTypeHandler) UploadImage(c *fiber.Ctx) error {
+	ctx, cancel := buildCtx(c)
+	defer cancel()
+
+	file, err := c.FormFile("image")
+	if err != nil {
+		return c.Status(400).JSON(fiber.Map{"message": "image file is required"})
+	}
+
+	src, err := file.Open()
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"message": "failed to open image file"})
+	}
+	defer src.Close()
+
+	url, err := h.svc.UploadRoomTypeImage(ctx, src, file.Filename)
+	if err != nil {
+		return handleError(c, err)
+	}
+
+	return c.Status(200).JSON(fiber.Map{
+		"url": url,
 	})
 }

@@ -1,0 +1,12 @@
+DROP TABLE IF EXISTS booking_addons;
+DROP TABLE IF EXISTS bookings;
+DROP TABLE IF EXISTS addons;
+DROP TABLE IF EXISTS addon_categories;
+DROP TABLE IF EXISTS room_type_rate_prices;
+DROP TABLE IF EXISTS rate_plans;
+DROP TABLE IF EXISTS room_blocks;
+DROP TABLE IF EXISTS rooms;
+DROP TABLE IF EXISTS roomtype_amenities;
+DROP TABLE IF EXISTS roomtypes;
+DROP TABLE IF EXISTS amenities;
+DROP TABLE IF EXISTS users;

@@ -2,17 +2,16 @@ package dto
 
 import "time"
 
-
 type RoomRequest struct {
-	RoomNumber		string `json:"room_number"`
+	RoomNumber string `json:"roomNumber"`
 }
 
 type RoomResponse struct {
-	RoomID					int `json:"room_id"`
-	RoomTypeID		int `json:"room_type_id"`
-	RoomTypeName	string `json:"room_type_name"`
-	RoomNumber		string `json:"room_number"`
-	Status 			string `json:"status"`
+	RoomID       int    `json:"roomId"`
+	RoomTypeID   int    `json:"roomTypeId"`
+	RoomTypeName string `json:"roomTypeName"`
+	RoomNumber   string `json:"roomNumber"`
+	Status       string `json:"status"`
 }
 
 type RoomStatusRequest struct {
@@ -20,59 +19,58 @@ type RoomStatusRequest struct {
 }
 
 type RoomTypeRequest struct {
-	Name				string `json:"name"`
-	Description	string `json:"description"`
-	SizeSQM				float64 `json:"size_sqm"`
-	BedType			string `json:"bed_type"`
-	Capacity		int `json:"capacity"`
-	PictureURL		[]string `json:"picture_url"`
-	AmenityIDs	 []int `json:"amenityIDs"`
+	Name        string   `json:"name"`
+	Description string   `json:"description"`
+	SizeSQM     float64  `json:"sizeSqm"`
+	BedType     string   `json:"bedType"`
+	Capacity    int      `json:"capacity"`
+	PictureURL  []string `json:"pictureUrl"`
+	AmenityIDs  []int    `json:"amenityIds"`
 }
 type RoomTypeResponse struct {
-	RoomTypeID		int `json:"room_type_id"`
-	Name				string `json:"name"`
-	Description	string `json:"description"`
-	SizeSQM				float64 `json:"size_sqm"`
-	BedType			string `json:"bed_type"`
-	Capacity		int `json:"capacity"`
-	PictureURL		[]string `json:"picture_url"`
+	RoomTypeID  int      `json:"roomTypeId"`
+	Name        string   `json:"name"`
+	Description string   `json:"description"`
+	SizeSQM     float64  `json:"sizeSqm"`
+	BedType     string   `json:"bedType"`
+	Capacity    int      `json:"capacity"`
+	PictureURL  []string `json:"pictureUrl"`
+	TotalRooms  int      `json:"totalRooms"`
 }
 
 type RoomTypeDetailResponse struct {
-	RoomTypeID		int `json:"room_type_id"`
-	Name				string `json:"name"`
-	Description	string `json:"description"`
-	SizeSQM				float64 `json:"size_sqm"`
-	BedType			string `json:"bed_type"`
-	Capacity		int `json:"capacity"`
-	PictureURL		[]string `json:"picture_url"`
-	Amenities	 []string `json:"amenities"`
+	RoomTypeID  int      `json:"roomTypeId"`
+	Name        string   `json:"name"`
+	Description string   `json:"description"`
+	SizeSQM     float64  `json:"sizeSqm"`
+	BedType     string   `json:"bedType"`
+	Capacity    int      `json:"capacity"`
+	PictureURL  []string `json:"pictureUrl"`
+	Amenities   []string `json:"amenities"`
 }
 
-
 type RoomBlockRequest struct {
-	RoomID    int       `json:"room_id"`
-	StartDate string `json:"start_date"`
-	EndDate   string `json:"end_date"`
-	Reason    string    `json:"reason"`
+	RoomID    int    `json:"roomId"`
+	StartDate string `json:"startDate"`
+	EndDate   string `json:"endDate"`
+	Reason    string `json:"reason"`
 }
 
 type RoomBlockResponse struct {
-	RoomBlockID int       `json:"room_block_id"`
-	RoomID      int       `json:"room_id"`
-	StartDate   time.Time `json:"start_date"`
-	EndDate     time.Time `json:"end_date"`
+	RoomBlockID int       `json:"roomBlockId"`
+	RoomID      int       `json:"roomId"`
+	StartDate   time.Time `json:"startDate"`
+	EndDate     time.Time `json:"endDate"`
 	Reason      string    `json:"reason"`
 }
 
-
 type AvailabilityRequest struct {
-	CheckIn  string `json:"check_in"`
-	CheckOut string `json:"check_out"`
+	CheckIn  string `json:"checkIn"`
+	CheckOut string `json:"checkOut"`
 }
 
 type FindRoomRequest struct {
-	RoomTypeID int       `json:"room_type_id"`
-	CheckIn    string `json:"check_in"`
-	CheckOut   string `json:"check_out"`
+	RoomTypeID int    `json:"roomTypeId"`
+	CheckIn    string `json:"checkIn"`
+	CheckOut   string `json:"checkOut"`
 }

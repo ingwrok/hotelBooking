@@ -7,35 +7,36 @@ import (
 )
 
 type BookingRequest struct {
-	UserID       int                   `json:"user_id"`
-	RatePlanID   int                   `json:"rate_plan_id"`
-	RoomTypeID   int                   `json:"room_type_id"`
-	CheckInDate  string                `json:"check_in_date"`
-	CheckOutDate string                `json:"check_out_date"`
-	NumAdults    int                   `json:"num_adults"`
-	BookingAddon []BookingAddonRequest `json:"booking_addon"`
+	UserID       int                   `json:"userId"`
+	RatePlanID   int                   `json:"ratePlanId"`
+	RoomTypeID   int                   `json:"roomTypeId"`
+	CheckInDate  string                `json:"checkInDate"`
+	CheckOutDate string                `json:"checkOutDate"`
+	NumAdults    int                   `json:"numAdults"`
+	Email        string                `json:"email"`
+	BookingAddon []BookingAddonRequest `json:"bookingAddon"`
 }
 
 type BookingResponse struct {
-	BookingID     int                    `json:"booking_id"`
-	UserID        int                    `json:"user_id"`
-	RatePlanID    int                    `json:"rate_plan_id"`
-	RoomID        int                    `json:"room_id"`
-	CheckInDate   time.Time              `json:"check_in_date"`
-	CheckOutDate  time.Time              `json:"check_out_date"`
-	NumAdults     int                    `json:"num_adults"`
+	BookingID     int                    `json:"bookingId"`
+	UserID        int                    `json:"userId"`
+	RatePlanID    int                    `json:"ratePlanId"`
+	RoomID        int                    `json:"roomId"`
+	CheckInDate   time.Time              `json:"checkInDate"`
+	CheckOutDate  time.Time              `json:"checkOutDate"`
+	NumAdults     int                    `json:"numAdults"`
 	Status        string                 `json:"status"`
-	RoomSubTotal  float64                `json:"room_sub_total"`
-	AddonSubTotal float64                `json:"addon_sub_total"`
-	TaxesAmount   float64                `json:"taxes_amount"`
-	TotalPrice    float64                `json:"total_price"`
-	CreatedAt     time.Time              `json:"created_at"`
-	UpdatedAt     time.Time              `json:"updated_at"`
-	ExpiredAt     time.Time              `json:"expired_at"`
-	RatePlanName  string                 `json:"rate_plan_name"`
-	RoomNumber    string                 `json:"room_number"`
-	RoomTypeName  string                 `json:"room_type_name"`
-	BookingAddon  []BookingAddonResponse `json:"booking_addon"`
+	RoomSubTotal  float64                `json:"roomSubTotal"`
+	AddonSubTotal float64                `json:"addonSubTotal"`
+	TaxesAmount   float64                `json:"taxesAmount"`
+	TotalPrice    float64                `json:"totalPrice"`
+	CreatedAt     time.Time              `json:"createdAt"`
+	UpdatedAt     time.Time              `json:"updatedAt"`
+	ExpiredAt     time.Time              `json:"expiredAt"`
+	RatePlanName  string                 `json:"ratePlanName"`
+	RoomNumber    string                 `json:"roomNumber"`
+	RoomTypeName  string                 `json:"roomTypeName"`
+	BookingAddon  []BookingAddonResponse `json:"bookingAddon"`
 }
 
 func ToBookingResponse(b *domain.BookingDetail) *BookingResponse {
@@ -78,17 +79,17 @@ func ToDomainBookingAddons(addons []BookingAddonRequest) []*domain.BookingAddon 
 }
 
 type BookingAddonRequest struct {
-	AddonID  int `json:"addon_id"`
+	AddonID  int `json:"addonId"`
 	Quantity int `json:"quantity"`
 }
 
 type BookingAddonResponse struct {
-	BookingAddonID int     `json:"booking_addon_id"`
-	BookingID      int     `json:"booking_id"`
-	AddonID        int     `json:"addon_id"`
-	AddonName      string  `json:"addon_name"`
+	BookingAddonID int     `json:"bookingAddonId"`
+	BookingID      int     `json:"bookingId"`
+	AddonID        int     `json:"addonId"`
+	AddonName      string  `json:"addonName"`
 	Quantity       int     `json:"quantity"`
-	PriceAtBooking float64 `json:"price_at_booking"`
+	PriceAtBooking float64 `json:"priceAtBooking"`
 }
 
 func ToBookingAddonResponses(addons []*domain.BookingAddon) []BookingAddonResponse {

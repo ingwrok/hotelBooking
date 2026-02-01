@@ -16,14 +16,14 @@ type RoomTypeRepository struct {
 	db *sqlx.DB
 }
 
-func NewRoomTypeRepository(db *sqlx.DB) ports.RoomTypeRepository{
+func NewRoomTypeRepository(db *sqlx.DB) ports.RoomTypeRepository {
 	return &RoomTypeRepository{db: db}
 }
 
 func (r *RoomTypeRepository) CreateRoomType(ctx context.Context, rt *domain.RoomType) error {
-  m := model.FromDomainRoomType(rt)
+	m := model.FromDomainRoomType(rt)
 
-	tx,err := r.db.BeginTxx(ctx,nil)
+	tx, err := r.db.BeginTxx(ctx, nil)
 	if err != nil {
 		return err
 	}
@@ -35,8 +35,7 @@ func (r *RoomTypeRepository) CreateRoomType(ctx context.Context, rt *domain.Room
         RETURNING room_type_id
     `
 	var newID int
-	err = tx.QueryRowContext(ctx, qInsertRoomType, m.Name, m.Description, m.SizeSQM, m.BedType, m.Capacity, m.PictureURL,
-	).Scan(&newID)
+	err = tx.QueryRowContext(ctx, qInsertRoomType, m.Name, m.Description, m.SizeSQM, m.BedType, m.Capacity, m.PictureURL).Scan(&newID)
 	if err != nil {
 		return err
 	}
@@ -44,7 +43,7 @@ func (r *RoomTypeRepository) CreateRoomType(ctx context.Context, rt *domain.Room
 	if len(rt.AmenityIDs) > 0 {
 		qInsertAmenity := `INSERT INTO roomtype_amenities (room_type_id, amenity_id) VALUES ($1, $2)`
 		for _, amenityID := range rt.AmenityIDs {
-			_,err = tx.ExecContext(ctx,qInsertAmenity,newID,amenityID)
+			_, err = tx.ExecContext(ctx, qInsertAmenity, newID, amenityID)
 			if err != nil {
 				return err
 			}
@@ -61,24 +60,24 @@ func (r *RoomTypeRepository) CreateRoomType(ctx context.Context, rt *domain.Room
 }
 func (r *RoomTypeRepository) UpdateRoomType(ctx context.Context, rt *domain.RoomType) error {
 	m := model.FromDomainRoomType(rt)
-	tx,err := r.db.BeginTxx(ctx,nil)
+	tx, err := r.db.BeginTxx(ctx, nil)
 	if err != nil {
 		return err
 	}
 	defer tx.Rollback()
 
-  qUpdateRoomType := `
+	qUpdateRoomType := `
       UPDATE roomtypes
 			SET name=$1, description=$2, size_sqm=$3, bed_type=$4, capacity=$5, picture_url=$6
       WHERE room_type_id=$7
     `
-  result, err := tx.ExecContext(ctx, qUpdateRoomType,
-    m.Name, m.Description, m.SizeSQM, m.BedType, m.Capacity, m.PictureURL,
+	result, err := tx.ExecContext(ctx, qUpdateRoomType,
+		m.Name, m.Description, m.SizeSQM, m.BedType, m.Capacity, m.PictureURL,
 		m.RoomTypeID,
-  )
-  if err != nil {
-    return err
-  }
+	)
+	if err != nil {
+		return err
+	}
 
 	rows, err := result.RowsAffected()
 	if err != nil {
@@ -86,11 +85,11 @@ func (r *RoomTypeRepository) UpdateRoomType(ctx context.Context, rt *domain.Room
 	}
 
 	if rows == 0 {
-		return fmt.Errorf("no room type found with id %d:%w", m.RoomTypeID,errs.ErrNotFound)
+		return fmt.Errorf("no room type found with id %d:%w", m.RoomTypeID, errs.ErrNotFound)
 	}
 
 	qDelete := `DELETE FROM roomtype_amenities WHERE room_type_id = $1`
-	if _,err = tx.ExecContext(ctx, qDelete,rt.RoomTypeID); err != nil {
+	if _, err = tx.ExecContext(ctx, qDelete, rt.RoomTypeID); err != nil {
 		return err
 	}
 
@@ -104,33 +103,33 @@ func (r *RoomTypeRepository) UpdateRoomType(ctx context.Context, rt *domain.Room
 		}
 	}
 
-  return tx.Commit()
+	return tx.Commit()
 }
 
-func (r *RoomTypeRepository)DeleteRoomType(ctx context.Context,id int) error{
-  qDeleteRoom := `DELETE FROM roomtypes
+func (r *RoomTypeRepository) DeleteRoomType(ctx context.Context, id int) error {
+	qDeleteRoom := `DELETE FROM roomtypes
   WHERE room_type_id = $1`
 
-  result, err := r.db.ExecContext(ctx, qDeleteRoom, id)
-  if err != nil {
-    return err
-  }
+	result, err := r.db.ExecContext(ctx, qDeleteRoom, id)
+	if err != nil {
+		return err
+	}
 
-  rows, err := result.RowsAffected()
-  if err != nil {
-    return err
-  }
+	rows, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
 
-  if rows == 0 {
-    return fmt.Errorf("no room found with id %d: %w", id,errs.ErrNotFound)
-  }
+	if rows == 0 {
+		return fmt.Errorf("no room found with id %d: %w", id, errs.ErrNotFound)
+	}
 
-  return nil
+	return nil
 }
 
 // read Room
-func (r *RoomTypeRepository)GetRoomTypeByID(ctx context.Context, id int) (*domain.RoomType, error){
-  q := `SELECT
+func (r *RoomTypeRepository) GetRoomTypeByID(ctx context.Context, id int) (*domain.RoomType, error) {
+	q := `SELECT
         	rt.room_type_id,
           rt.name,
           rt.description,
@@ -142,48 +141,49 @@ func (r *RoomTypeRepository)GetRoomTypeByID(ctx context.Context, id int) (*domai
         WHERE rt.room_type_id = $1
 				`
 
-  var model model.RoomType
+	var model model.RoomType
 
-    err := r.db.GetContext(ctx, &model, q, id)
-    if err != nil {
-      if err == sql.ErrNoRows {
-        return nil, fmt.Errorf("room type not found:%w",errs.ErrNotFound)
-      }
-      return nil, err
-    }
+	err := r.db.GetContext(ctx, &model, q, id)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, fmt.Errorf("room type not found:%w", errs.ErrNotFound)
+		}
+		return nil, err
+	}
 
-    return model.ToDomain(), nil
+	return model.ToDomain(), nil
 }
 
-func (r *RoomTypeRepository)GetAllRoomTypes(ctx context.Context) ([]*domain.RoomType, error){
-	 q := `SELECT
+func (r *RoomTypeRepository) GetAllRoomTypes(ctx context.Context) ([]*domain.RoomType, error) {
+	q := `SELECT
         	rt.room_type_id,
           rt.name,
           rt.description,
 					rt.size_sqm,
           rt.bed_type,
           rt.capacity,
-          rt.picture_url AS picture_url
+          rt.picture_url AS picture_url,
+					(SELECT COUNT(*) FROM rooms r WHERE r.room_type_id = rt.room_type_id AND r.status != 'maintenance') AS total_rooms
         FROM roomtypes rt
 				`
 
-  var models []model.RoomType
+	var models []model.RoomType
 
-    err := r.db.SelectContext(ctx, &models, q)
-    if err != nil {
-      return nil, err
-    }
+	err := r.db.SelectContext(ctx, &models, q)
+	if err != nil {
+		return nil, err
+	}
 
-		result := make([]*domain.RoomType, len(models))
-		for i, m := range models {
-			result[i] = m.ToDomain()
-		}
+	result := make([]*domain.RoomType, len(models))
+	for i, m := range models {
+		result[i] = m.ToDomain()
+	}
 
-    return result, nil
+	return result, nil
 }
 
-func (r *RoomTypeRepository)GetRoomTypeFullDetail(ctx context.Context, id int) (*domain.RoomTypeDetails, error){
-  q := `SELECT
+func (r *RoomTypeRepository) GetRoomTypeFullDetail(ctx context.Context, id int) (*domain.RoomTypeDetails, error) {
+	q := `SELECT
         	rt.room_type_id,
           rt.name,
           rt.description,
@@ -201,15 +201,15 @@ func (r *RoomTypeRepository)GetRoomTypeFullDetail(ctx context.Context, id int) (
         WHERE rt.room_type_id = $1
         GROUP BY rt.room_type_id`
 
-  var model model.RoomTypeDetails
+	var model model.RoomTypeDetails
 
-    err := r.db.GetContext(ctx, &model, q, id)
-    if err != nil {
-      if err == sql.ErrNoRows {
-        return nil, fmt.Errorf("room type not found:%w",errs.ErrNotFound)
-      }
-      return nil, err
-    }
+	err := r.db.GetContext(ctx, &model, q, id)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, fmt.Errorf("room type not found:%w", errs.ErrNotFound)
+		}
+		return nil, err
+	}
 
-    return model.ToDomain(), nil
+	return model.ToDomain(), nil
 }

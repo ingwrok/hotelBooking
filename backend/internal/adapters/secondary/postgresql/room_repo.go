@@ -192,7 +192,7 @@ func (r *RoomRepository) GetAvailableRoomCounts(ctx context.Context, checkIn, ch
       r.room_type_id,
       COUNT(r.room_id) AS available_count
     FROM rooms r
-  WHERE r.status = 'available'
+    WHERE r.status != 'maintenance'
     AND NOT EXISTS (
       SELECT 1
       FROM bookings b
@@ -234,7 +234,7 @@ func (r *RoomRepository) GetAnyAvailableRoomID(ctx context.Context, roomTypeID i
     SELECT r.room_id
     FROM rooms r
     WHERE r.room_type_id = $1
-      AND r.status = 'available'
+      AND r.status != 'maintenance'
       AND NOT EXISTS (
           SELECT 1 FROM bookings b
           WHERE b.room_id = r.room_id

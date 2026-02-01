@@ -27,7 +27,7 @@ type Booking struct {
 func (m *Booking) ToDomain(addons []*BookingAddon) *domain.Booking {
 
 	var domainAddons []*domain.BookingAddon
-	for _, a := range addons{
+	for _, a := range addons {
 		domainAddons = append(domainAddons, &domain.BookingAddon{
 			BookingAddonID: a.BookingAddonID,
 			BookingID:      a.BookingID,
@@ -53,7 +53,7 @@ func (m *Booking) ToDomain(addons []*BookingAddon) *domain.Booking {
 		CreatedAt:     m.CreatedAt,
 		UpdatedAt:     m.UpdatedAt,
 		ExpiredAt:     m.ExpiredAt,
-		BookingAddon: domainAddons,
+		BookingAddon:  domainAddons,
 	}
 }
 
@@ -111,35 +111,39 @@ type BookingDetail struct {
 	Booking
 	RatePlanName string `db:"rate_plan_name"`
 	RoomNumber   string `db:"room_number"`
-  RoomTypeName string `db:"room_type_name"`
+	RoomTypeName string `db:"room_type_name"`
+	UserEmail    string `db:"user_email"`
+	UserName     string `db:"user_name"`
 }
 
 func (m *BookingDetail) ToDomainDetail(addons []*BookingAddon) *domain.BookingDetail {
 
 	var domainAddons []*domain.BookingAddon
-  for _, a := range addons {
-    domainAddons = append(domainAddons, a.ToDomain())
-  }
+	for _, a := range addons {
+		domainAddons = append(domainAddons, a.ToDomain())
+	}
 
-  return &domain.BookingDetail{
-    BookingID:     m.BookingID,
-    UserID:        m.UserID,
-    RatePlanID:    m.RatePlanID,
-    RoomID:        m.RoomID,
-    CheckInDate:   m.CheckInDate,
-    CheckOutDate:  m.CheckOutDate,
-    NumAdults:     m.NumAdults,
-    Status:        m.Status,
-    RoomSubTotal:  m.RoomSubTotal,
-    AddonSubTotal: m.AddonSubTotal,
-    TaxesAmount:   m.TaxesAmount,
-    TotalPrice:    m.TotalPrice,
-    CreatedAt:     m.CreatedAt,
-    UpdatedAt:     m.UpdatedAt,
-    ExpiredAt:     m.ExpiredAt,
-    BookingAddon:  domainAddons,
-    RatePlanName:  m.RatePlanName,
+	return &domain.BookingDetail{
+		BookingID:     m.BookingID,
+		UserID:        m.UserID,
+		RatePlanID:    m.RatePlanID,
+		RoomID:        m.RoomID,
+		CheckInDate:   m.CheckInDate,
+		CheckOutDate:  m.CheckOutDate,
+		NumAdults:     m.NumAdults,
+		Status:        m.Status,
+		RoomSubTotal:  m.RoomSubTotal,
+		AddonSubTotal: m.AddonSubTotal,
+		TaxesAmount:   m.TaxesAmount,
+		TotalPrice:    m.TotalPrice,
+		CreatedAt:     m.CreatedAt,
+		UpdatedAt:     m.UpdatedAt,
+		ExpiredAt:     m.ExpiredAt,
+		BookingAddon:  domainAddons,
+		RatePlanName:  m.RatePlanName,
 		RoomNumber:    m.RoomNumber,
-    RoomTypeName:  m.RoomTypeName,
-  }
+		RoomTypeName:  m.RoomTypeName,
+		Email:         m.UserEmail,
+		UserName:      m.UserName,
+	}
 }

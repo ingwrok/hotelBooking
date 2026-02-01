@@ -1,29 +1,29 @@
 package dto
 
 type AddonCategoryRequest struct {
-	Name       string `json:"name"`
+	Name string `json:"name"`
 }
 
 type AddonCategoryResponse struct {
-	CategoryID int    `json:"category_id"`
+	CategoryID int    `json:"categoryId"`
 	Name       string `json:"name"`
 }
 
 type AddonRequest struct {
-	CategoryID int    `json:"category_id"`
-	Name      string `json:"name"`
-	Description string `json:"description"`
-	Price     float64 `json:"price"`
-	UnitName	string `json:"unit_name"`
+	CategoryID  int     `json:"categoryId"`
+	Name        string  `json:"name"`
+	Description string  `json:"description"`
+	Price       float64 `json:"price"`
+	UnitName    string  `json:"unitName"`
+	PictureURL  string  `json:"pictureUrl"`
 }
-
 
 type AddonResponse struct {
-	AddonID   int    `json:"addon_id"`
-	CategoryID int    `json:"category_id"`
-	Name      string `json:"name"`
-	Description string `json:"description"`
-	Price     float64 `json:"price"`
-	UnitName	string `json:"unit_name"`
+	AddonID     int     `json:"addonId"`
+	CategoryID  int     `json:"categoryId"`
+	Name        string  `json:"name"`
+	Description string  `json:"description"`
+	Price       float64 `json:"price"`
+	UnitName    string  `json:"unitName"`
+	PictureURL  string  `json:"pictureUrl"`
 }
-

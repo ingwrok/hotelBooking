@@ -79,11 +79,14 @@ func (r *BookingRepository) GetBookingWithAddons(ctx context.Context, bookingID 
 				b.*, 
 				rp.name as rate_plan_name, 
 				r.room_number, 
-				rt.name as room_type_name
+				rt.name as room_type_name,
+				u.email as user_email,
+				u.username as user_name
 			FROM bookings b
 			JOIN rate_plans rp ON b.rate_plan_id = rp.rate_plan_id
 			JOIN rooms r ON b.room_id = r.room_id
 			JOIN roomtypes rt ON r.room_type_id = rt.room_type_id
+			JOIN users u ON b.user_id = u.user_id
 			WHERE b.booking_id = $1`
 
 	err = tx.GetContext(ctx, &mBookingDetail, queryBooking, bookingID)
@@ -205,4 +208,92 @@ func (r *BookingRepository) CancelExpiredBookings(ctx context.Context) (int64, e
 	}
 
 	return rows, nil
+}
+
+func (r *BookingRepository) GetBookingsByUserID(ctx context.Context, userID int) ([]*domain.BookingDetail, error) {
+	tx, err := r.db.BeginTxx(ctx, nil)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Rollback()
+
+	var mBookingDetail []model.BookingDetail
+	queryBooking := `
+			SELECT
+				b.*,
+				rp.name as rate_plan_name,
+				r.room_number,
+				rt.name as room_type_name
+			FROM bookings b
+			JOIN rate_plans rp ON b.rate_plan_id = rp.rate_plan_id
+			JOIN rooms r ON b.room_id = r.room_id
+			JOIN roomtypes rt ON r.room_type_id = rt.room_type_id
+			WHERE b.user_id = $1
+			ORDER BY b.created_at DESC`
+
+	err = tx.SelectContext(ctx, &mBookingDetail, queryBooking, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	var result []*domain.BookingDetail
+	for _, m := range mBookingDetail {
+		var mAddons []*model.BookingAddon
+		queryAddons := `SELECT ba.*,a.name as addon_name
+										FROM booking_addons ba
+										JOIN addons a ON ba.addon_id = a.addon_id
+										WHERE ba.booking_id = $1`
+		err = tx.SelectContext(ctx, &mAddons, queryAddons, m.BookingID)
+		if err != nil {
+			return nil, err
+		}
+
+		result = append(result, m.ToDomainDetail(mAddons))
+	}
+	return result, tx.Commit()
+}
+func (r *BookingRepository) GetAllBookings(ctx context.Context) ([]*domain.BookingDetail, error) {
+	tx, err := r.db.BeginTxx(ctx, nil)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Rollback()
+
+	var mBookingDetail []model.BookingDetail
+	// Join with Users to get Booker info
+	queryBooking := `
+			SELECT
+				b.*,
+				rp.name as rate_plan_name,
+				r.room_number,
+				rt.name as room_type_name,
+				u.username as user_name,
+				u.email as user_email
+			FROM bookings b
+			JOIN rate_plans rp ON b.rate_plan_id = rp.rate_plan_id
+			JOIN rooms r ON b.room_id = r.room_id
+			JOIN roomtypes rt ON r.room_type_id = rt.room_type_id
+			JOIN users u ON b.user_id = u.user_id
+			ORDER BY b.created_at DESC`
+
+	err = tx.SelectContext(ctx, &mBookingDetail, queryBooking)
+	if err != nil {
+		return nil, err
+	}
+
+	var result []*domain.BookingDetail
+	for _, m := range mBookingDetail {
+		var mAddons []*model.BookingAddon
+		queryAddons := `SELECT ba.*,a.name as addon_name
+										FROM booking_addons ba
+										JOIN addons a ON ba.addon_id = a.addon_id
+										WHERE ba.booking_id = $1`
+		err = tx.SelectContext(ctx, &mAddons, queryAddons, m.BookingID)
+		if err != nil {
+			return nil, err
+		}
+
+		result = append(result, m.ToDomainDetail(mAddons))
+	}
+	return result, tx.Commit()
 }

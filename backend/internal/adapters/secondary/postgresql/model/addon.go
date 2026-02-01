@@ -14,7 +14,7 @@ func (m *AddonCategory) ToDomain() *domain.AddonCategory {
 	}
 }
 
-func FromDomainAddonCategory(d *domain.AddonCategory) *AddonCategory{
+func FromDomainAddonCategory(d *domain.AddonCategory) *AddonCategory {
 	return &AddonCategory{
 		CategoryID: d.CategoryID,
 		Name:       d.Name,
@@ -22,12 +22,13 @@ func FromDomainAddonCategory(d *domain.AddonCategory) *AddonCategory{
 }
 
 type Addon struct {
-	AddonID   int    `db:"addon_id"`
-	CategoryID int    `db:"category_id"`
-	Name      string `db:"name"`
-	Description string `db:"description"`
-	Price     float64 `db:"price"`
-	UnitName	string `db:"unit_name"`
+	AddonID     int     `db:"addon_id"`
+	CategoryID  int     `db:"category_id"`
+	Name        string  `db:"name"`
+	Description string  `db:"description"`
+	Price       float64 `db:"price"`
+	UnitName    string  `db:"unit_name"`
+	PictureURL  *string `db:"picture_url"`
 }
 
 func (m *Addon) ToDomain() *domain.Addon {
@@ -38,10 +39,16 @@ func (m *Addon) ToDomain() *domain.Addon {
 		Description: m.Description,
 		Price:       m.Price,
 		UnitName:    m.UnitName,
+		PictureURL: func() string {
+			if m.PictureURL != nil {
+				return *m.PictureURL
+			}
+			return ""
+		}(),
 	}
 }
 
-func FromDomainAddon(d *domain.Addon) *Addon{
+func FromDomainAddon(d *domain.Addon) *Addon {
 	return &Addon{
 		AddonID:     d.AddonID,
 		CategoryID:  d.CategoryID,
@@ -49,5 +56,6 @@ func FromDomainAddon(d *domain.Addon) *Addon{
 		Description: d.Description,
 		Price:       d.Price,
 		UnitName:    d.UnitName,
+		PictureURL:  &d.PictureURL,
 	}
 }
