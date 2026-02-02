@@ -24,7 +24,7 @@ const Navbar = () => {
                 {/* Logo */}
                 <Link to="/" className="flex items-center space-x-2 text-primary">
                     <Hotel className="w-8 h-8" />
-                    <span className="text-xl font-serif font-bold tracking-tight">LuxStay</span>
+                    <span className="text-xl font-serif font-bold tracking-tight">IngStay</span>
                 </Link>
 
                 {/* Desktop Menu */}
