@@ -58,7 +58,8 @@ func main() {
 	userSvc := services.NewUserService(userRepo)
 
 	// Email Service
-	emailAdapter := email.NewGomailAdapter()
+	// emailAdapter := email.NewGomailAdapter()
+	emailAdapter := email.NewResendAdapter()
 
 	// Services
 	roomSvc := services.NewRoomService(roomRepo)
