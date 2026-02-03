@@ -283,17 +283,7 @@ func (r *BookingRepository) GetAllBookings(ctx context.Context) ([]*domain.Booki
 
 	var result []*domain.BookingDetail
 	for _, m := range mBookingDetail {
-		var mAddons []*model.BookingAddon
-		queryAddons := `SELECT ba.*,a.name as addon_name
-										FROM booking_addons ba
-										JOIN addons a ON ba.addon_id = a.addon_id
-										WHERE ba.booking_id = $1`
-		err = tx.SelectContext(ctx, &mAddons, queryAddons, m.BookingID)
-		if err != nil {
-			return nil, err
-		}
-
-		result = append(result, m.ToDomainDetail(mAddons))
+		result = append(result, m.ToDomainDetail(nil))
 	}
 	return result, tx.Commit()
 }

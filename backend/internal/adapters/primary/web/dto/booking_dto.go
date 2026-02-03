@@ -36,10 +36,26 @@ type BookingResponse struct {
 	RatePlanName  string                 `json:"ratePlanName"`
 	RoomNumber    string                 `json:"roomNumber"`
 	RoomTypeName  string                 `json:"roomTypeName"`
+	GuestDetails  *GuestInfoResponse     `json:"guestDetails"`
 	BookingAddon  []BookingAddonResponse `json:"bookingAddon"`
 }
 
+type GuestInfoResponse struct {
+	FirstName string `json:"firstName"`
+	LastName  string `json:"lastName"`
+	Email     string `json:"email"`
+}
+
 func ToBookingResponse(b *domain.BookingDetail) *BookingResponse {
+	// Simple split of username for demo purposes, as we only store username string
+	// In a real app, User struct would have FirstName/LastName separately.
+	// We'll reuse UserName for FirstName and "-" for LastName if single word.
+	firstName := b.UserName
+	lastName := ""
+
+	// If needed we could split string here, but keeping it simple is safer.
+	// Frontend expects { firstName, lastName }
+
 	return &BookingResponse{
 		BookingID:     b.BookingID,
 		UserID:        b.UserID,
@@ -60,6 +76,11 @@ func ToBookingResponse(b *domain.BookingDetail) *BookingResponse {
 		RoomNumber:    b.RoomNumber,
 		RoomTypeName:  b.RoomTypeName,
 		BookingAddon:  (ToBookingAddonResponses(b.BookingAddon)),
+		GuestDetails: &GuestInfoResponse{
+			FirstName: firstName,
+			LastName:  lastName,
+			Email:     b.Email,
+		},
 	}
 }
 

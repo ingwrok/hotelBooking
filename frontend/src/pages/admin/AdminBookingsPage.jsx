@@ -51,6 +51,7 @@ const AdminBookingsPage = () => {
                             <tr>
                                 <th className="px-6 py-4">ID</th>
                                 <th className="px-6 py-4">Guest</th>
+                                <th className="px-6 py-4">Pax</th>
                                 <th className="px-6 py-4">Dates</th>
                                 <th className="px-6 py-4">Room</th>
                                 <th className="px-6 py-4 text-right">Total</th>
@@ -65,6 +66,12 @@ const AdminBookingsPage = () => {
                                     <td className="px-6 py-4">
                                         <div className="font-bold text-gray-800">{b.guestDetails?.firstName} {b.guestDetails?.lastName}</div>
                                         <div className="text-xs text-gray-400">{b.email || b.userEmail}</div>
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <div className="flex items-center gap-1 font-bold text-gray-700">
+                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                                            {b.numAdults}
+                                        </div>
                                     </td>
                                     <td className="px-6 py-4">
                                         <div>{format(new Date(b.checkInDate), 'dd MMM yyyy')}</div>
