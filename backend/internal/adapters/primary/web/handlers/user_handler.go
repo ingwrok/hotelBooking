@@ -58,8 +58,8 @@ func (h *UserHandler) Login(c *fiber.Ctx) error {
 		Value:    token,
 		Expires:  time.Now().Add(24 * time.Hour),
 		HTTPOnly: true,
-		Secure:   false,
-		SameSite: "Lax",
+		Secure:   true,
+		SameSite: "None",
 	})
 
 	return c.Status(fiber.StatusOK).JSON(dto.LoginResponse{
@@ -79,8 +79,8 @@ func (h *UserHandler) Logout(c *fiber.Ctx) error {
 		Value:    "",
 		Expires:  time.Now().Add(-1 * time.Hour), // Expire immediately
 		HTTPOnly: true,
-		Secure:   false,
-		SameSite: "Lax",
+		Secure:   true,
+		SameSite: "None",
 	})
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"message": "logged out successfully"})
 }
