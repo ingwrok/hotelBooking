@@ -96,7 +96,12 @@ const BookingPage = () => {
         }
     };
 
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
     const handleBookingSubmit = async () => {
+        if (isSubmitting) return;
+        setIsSubmitting(true);
+
         const bookingPayload = {
             userId: user.user?.id || user.id, // Dynamic User ID
             roomTypeId: bookingState.roomId, // SearchPage sets roomId as roomTypeId
@@ -116,9 +121,11 @@ const BookingPage = () => {
                 navigate('/confirmation', { state: { booking: resultAction.payload } });
             } else {
                 alert("Booking failed: " + resultAction.error.message);
+                setIsSubmitting(false); // Re-enable on failure
             }
         } catch (error) {
             alert("Booking failed. Please try again.");
+            setIsSubmitting(false); // Re-enable on error
         }
     };
 
@@ -408,9 +415,10 @@ const BookingPage = () => {
                         <div className="mt-12 pt-6 border-t border-gray-100 flex justify-end">
                             <button
                                 onClick={handleNext}
-                                className="bg-primary hover:bg-gray-800 text-white px-10 py-4 text-xs font-bold uppercase tracking-[0.2em] transition-all"
+                                disabled={isSubmitting} // Disable button
+                                className={`bg-primary hover:bg-gray-800 text-white px-10 py-4 text-xs font-bold uppercase tracking-[0.2em] transition-all ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
                             >
-                                {currentStep === steps.length - 1 ? "Complete Reservation" : "Continue"}
+                                {isSubmitting ? "Processing..." : (currentStep === steps.length - 1 ? "Complete Reservation" : "Continue")}
                             </button>
                         </div>
                     </div>
@@ -495,9 +503,10 @@ const BookingPage = () => {
                     </div>
                     <button
                         onClick={handleNext}
-                        className="bg-primary text-white px-6 py-3 rounded text-xs font-bold uppercase tracking-wider"
+                        disabled={isSubmitting}
+                        className={`bg-primary text-white px-6 py-3 rounded text-xs font-bold uppercase tracking-wider ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
                     >
-                        {currentStep === steps.length - 1 ? "Book" : "Next"}
+                        {isSubmitting ? "..." : (currentStep === steps.length - 1 ? "Book" : "Next")}
                     </button>
                 </div>
 

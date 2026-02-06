@@ -88,7 +88,7 @@ export const getAvailabilityCounts = async (checkIn, checkOut) => {
             checkIn: checkIn,
             checkOut: checkOut
         });
-        return response.data; 
+        return response.data;
     } catch (e) {
         handleApiError(e, "getAvailabilityCounts");
     }
