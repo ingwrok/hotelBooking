@@ -1,8 +1,6 @@
 package handlers
 
 import (
-	"time"
-
 	"github.com/gofiber/fiber/v2"
 	"github.com/ingwrok/hotelBooking/internal/adapters/primary/web/dto"
 	"github.com/ingwrok/hotelBooking/internal/common/errs"
@@ -53,15 +51,6 @@ func (h *UserHandler) Login(c *fiber.Ctx) error {
 		return handleError(c, err)
 	}
 
-	c.Cookie(&fiber.Cookie{
-		Name:     "Authorization",
-		Value:    token,
-		Expires:  time.Now().Add(24 * time.Hour),
-		HTTPOnly: true,
-		Secure:   true,
-		SameSite: "None",
-	})
-
 	return c.Status(fiber.StatusOK).JSON(dto.LoginResponse{
 		Token: token,
 		User: dto.UserResponse{
@@ -74,14 +63,8 @@ func (h *UserHandler) Login(c *fiber.Ctx) error {
 }
 
 func (h *UserHandler) Logout(c *fiber.Ctx) error {
-	c.Cookie(&fiber.Cookie{
-		Name:     "Authorization",
-		Value:    "",
-		Expires:  time.Now().Add(-1 * time.Hour), // Expire immediately
-		HTTPOnly: true,
-		Secure:   true,
-		SameSite: "None",
-	})
+	// Cookie removed for Bearer Token strategy
+	// c.Cookie(&fiber.Cookie{...})
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"message": "logged out successfully"})
 }
 
